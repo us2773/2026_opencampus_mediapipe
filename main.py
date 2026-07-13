@@ -59,7 +59,7 @@ while cap.isOpened():
     
     now = datetime.now()
     print("現在時刻:", now) 
-    print("ミリ秒:", now.microsecond // 1000)  # microsecondはマイクロ秒（μs）
+    # print("ミリ秒:", now.microsecond // 1000)  # microsecondはマイクロ秒（μs）
     count += 1
     # カメラから画像を取得
     ret, frame = cap.read()

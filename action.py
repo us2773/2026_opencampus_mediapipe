@@ -119,7 +119,7 @@ class action() :
                 return False
 
             # 3秒以上維持したら認識
-            elif time.time() - self.tpose_start_time >= 1: #開始時間と維持を続けた時の現在時間を比較
+            elif time.time() - self.tpose_start_time >= 3: #開始時間と維持を続けた時の現在時間を比較
                 self.update_topse_detected(True)
                 return True
         else:
