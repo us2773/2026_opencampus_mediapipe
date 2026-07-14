@@ -7,10 +7,15 @@ class action() :
         self._last_frames: deque = deque(maxlen=25)
         self._tpose_start_time = None #時間のための変数，Tポーズを始めた時刻
         self._tpose_detected = False #Tポーズを認識したかどうかの変数，最初は認識してないからFalse
+        self._message = {"jump": False, "sit": False, "crap": False, "grab": False, "tpose": False}
     
     @property
     def last_frames(self) :
         return self._last_frames
+    
+    @property
+    def message(self) :
+        return self._message
     
     @property
     def tpose_start_time(self) :
@@ -174,3 +179,12 @@ class action() :
                 count += 1
         
         return count == 4
+    
+    def change_message(self, message: str) :
+        if (message in self.message) :
+            self.message[message] = True
+    
+    def reset_message(self) :
+        #self._message = {"jump": False, "sit": False, "crap": False, "grab": False, "tpose": False}
+        for key, _ in self.message.items() :
+            self.message[key] = False

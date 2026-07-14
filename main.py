@@ -55,11 +55,18 @@ count = 0 # フレーム数
 action = action.action()
 sender = client.client()
 
+def send_message(messages: dict) : 
+    for key, value in messages.items() :
+        if (value) :
+            sender.send_command(key)
+    if not any(messages.values()) :
+        sender.send_command("default")
+
 while cap.isOpened():
     
     now = datetime.now()
     print("現在時刻:", now) 
-    print("ミリ秒:", now.microsecond // 1000)  # microsecondはマイクロ秒（μs）
+    #print("ミリ秒:", now.microsecond // 1000)  # microsecondはマイクロ秒（μs）
     count += 1
     # カメラから画像を取得
     ret, frame = cap.read()
@@ -109,26 +116,18 @@ while cap.isOpened():
             landmarks.append(y)
         csv_result.append(landmarks) 
             
-        #print(f"jump: {action.check_jumping(result[-1])}")
         if action.check_jumping(csv_result[-1]) :
-            print("jump")
-            sender.send_command("jump")
+            action.change_message("jump")
             
-        #print(f"sit: {action.check_sitting(result[-1])}")
         if action.check_sitting(csv_result[-1]) :
-            print("sit")
-            sender.send_command("sit")
+            action.change_message("sit")
                     
         
-        #print(f"tpose_continue: {action.is_tpose(pose_results.pose_landmarks.landmark)}")
         if action.is_tpose(pose_results.pose_landmarks.landmark) :
-            print("tpose")
-            sender.send_command("tpose")
+            action.change_message("tpose")
             
-        #print(f"check_tpose: {action.check_tpose(pose_results.pose_landmarks.landmark)}")
         if action.check_tpose(pose_results.pose_landmarks.landmark) :
-            print("tpose_continue")
-            sender.send_command("tpose_continue")
+            action.change_message("tpose_continue")
     # Hands（手骨格）
     
     if hands_results.multi_hand_landmarks:
@@ -152,18 +151,18 @@ while cap.isOpened():
                 y = lm.y
                 # ランドマーク番号と座標を表示
 
-            if   hands_results.multi_hand_landmarks != None:
+            if hands_results.multi_hand_landmarks != None:
                 if len(hands_results.multi_hand_landmarks) == 2 :
                     hand1 = hands_results.multi_hand_landmarks[0]
                     hand2 = hands_results.multi_hand_landmarks[1]
 
                     if action.judge_grab(hand1) or action.judge_grab(hand2):
-                        print(f"grab")
-                        sender.send_command("grab")
-                    #print(f"crap: {action.judge_crap(hand1, hand2)}")
+                        action.change_message("grab")
                     if action.judge_crap(hand1, hand2) :
-                        print("crap")
-                        sender.send_command("crap")
+                        action.change_message("crap")
+    send_message(action.message)
+    print(action.message)
+    action.reset_message()
                 
     # 結果を表示
     cv2.imshow("Pose + Hands", frame)
@@ -171,6 +170,7 @@ while cap.isOpened():
     
     if cv2.waitKey(1) & 0xFF == ord("q"):
         break
+    
 
 # 後処理
 
