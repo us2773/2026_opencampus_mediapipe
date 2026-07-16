@@ -53,14 +53,15 @@ last_frames = deque(maxlen=25)
 
 count = 0 # フレーム数
 action = action.action()
-sender = client.client()
+action_sender = client.client(5052)
+video_sender = client.client(5053)
 
 def send_message(messages: dict) : 
     for key, value in messages.items() :
         if (value) :
-            sender.send_command(key)
+            action_sender.send_command(key)
     if not any(messages.values()) :
-        sender.send_command("default")
+        action_sender.send_command("default")
 
 while cap.isOpened():
     
@@ -163,6 +164,9 @@ while cap.isOpened():
     send_message(action.message)
     print(action.message)
     action.reset_message()
+
+    _, buffer = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 60])
+    video_sender.send_video(buffer)
                 
     # 結果を表示
     cv2.imshow("Pose + Hands", frame)
