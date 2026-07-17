@@ -4,15 +4,15 @@ import math
 
 class action() :
     def __init__(self) :
-        self._last_frames: deque = deque(maxlen=25)
+        self._jump_last_frames: deque = deque(maxlen=25)
         self._swing_last_frames: deque = deque(maxlen=25)
         self._tpose_start_time = None #時間のための変数，Tポーズを始めた時刻
         self._tpose_detected = False #Tポーズを認識したかどうかの変数，最初は認識してないからFalse
-        self._message = {"jump": False, "sit": False, "crap": False, "grab": False, "tpose": False}
+        self._message = {"jump": False, "sit": False, "crap": False, "grab": False, "tpose": False, "swing": False}
     
     @property
-    def last_frames(self) :
-        return self._last_frames
+    def jump_last_frames(self) :
+        return self._jump_last_frames
     
     @property
     def swing_last_frames(self) :
@@ -36,22 +36,23 @@ class action() :
     def update_topse_detected(self, v) :
         self._tpose_detected = v
         
-    def add_que(self, frame) :
-        self._last_frames.append(frame)
+    def add_jump_que(self, frame) :
+        self._jump_last_frames.append(frame)
+
     def add_swing_que(self, frame) :
         self._swing_last_frames.append(frame)
 
     def check_jumping(self, now_frame) :
-        left_hip = now_frame[45]
+        left_hip = now_frame[23][1] #45
         #self.last_frames.append(left_hip)
-        self.add_que(left_hip)
-        if len(self.last_frames) == 25 :
+        self.add_jump_que(left_hip)
+        if len(self.jump_last_frames) == 25 :
             
-            left_foot = (self.last_frames[0]+ self.last_frames[1]+ self.last_frames[2]) / 3
-            left_side = (self.last_frames[5]+ self.last_frames[6]+ self.last_frames[7]) / 3
-            top =  (self.last_frames[10]+ self.last_frames[11]+ self.last_frames[12]) / 3
-            right_side = (self.last_frames[15]+ self.last_frames[16]+ self.last_frames[17]) / 3
-            right_foot = (self.last_frames[20]+ self.last_frames[21]+ self.last_frames[22]) / 3
+            left_foot = (self.jump_last_frames[0]+ self.jump_last_frames[1]+ self.jump_last_frames[2]) / 3
+            left_side = (self.jump_last_frames[5]+ self.jump_last_frames[6]+ self.jump_last_frames[7]) / 3
+            top =  (self.jump_last_frames[10]+ self.jump_last_frames[11]+ self.jump_last_frames[12]) / 3
+            right_side = (self.jump_last_frames[15]+ self.jump_last_frames[16]+ self.jump_last_frames[17]) / 3
+            right_foot = (self.jump_last_frames[20]+ self.jump_last_frames[21]+ self.jump_last_frames[22]) / 3
             if (left_foot > left_side and left_side > top and top < right_side and right_side < right_foot and left_foot - top >= 0.05) :
                 return True
             else :
@@ -60,10 +61,10 @@ class action() :
             return False
         
     def check_sitting(self, now_frame): 
-        left_hip = now_frame[45]
-        right_hip = now_frame[47]
-        left_knee = now_frame[49]
-        right_knee = now_frame[51]
+        left_hip = now_frame[23][1]
+        right_hip = now_frame[24][1]
+        left_knee = now_frame[25][1]
+        right_knee = now_frame[26][1]
         
         if left_hip > left_knee and right_hip > right_knee :
             return True
@@ -197,13 +198,13 @@ class action() :
             self.message[key] = False
     
     def judge_swing(self, now_frame) :
-        left_hip = now_frame[45]
         left_wrist = now_frame[15]
         right_wrist = now_frame[16]
         hands_height = 0
         
         if abs(left_wrist[0] - right_wrist[0]) <= 0.1 :
             hands_height = left_wrist[1]
+            print("swing: closing both hands")
         
         #self.last_frames.append(left_hip)
         self.add_swing_que(hands_height)
@@ -220,3 +221,4 @@ class action() :
                 return False
         else :
             return False
+        

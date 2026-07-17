@@ -37,7 +37,7 @@ hands = mp_hands.Hands(
 # 0はPC内蔵カメラを表す
 
 cap = cv2.VideoCapture(0)
-csv_result = []
+all_landmarks = []
 header = []
 
 for i in range(32) :
@@ -113,17 +113,18 @@ while cap.isOpened():
                 x = None
                 y = None
 
-            landmarks.append(x)
-            landmarks.append(y)
-        csv_result.append(landmarks) 
+            #landmarks.append(x)
+            #landmarks.append(y)
+            landmarks.append([x,y])
+        all_landmarks.append(landmarks) 
             
-        if action.check_jumping(csv_result[-1]) :
+        if action.check_jumping(all_landmarks[-1]) :
             action.change_message("jump")
             
-        if action.judge_swing(csv_result[-1]) :
+        if action.judge_swing(all_landmarks[-1]) :
             action.change_message("swing")
             
-        if action.check_sitting(csv_result[-1]) :
+        if action.check_sitting(all_landmarks[-1]) :
             action.change_message("sit")
                     
         
@@ -194,4 +195,4 @@ hands.close()
 # 結果のCSV出力（なくてもいい）
 with open("result.csv", "w") as f :
     writer = csv.writer(f)
-    writer.writerows(csv_result)
+    writer.writerows(all_landmarks)
