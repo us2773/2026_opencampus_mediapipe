@@ -18,7 +18,7 @@ mp_draw = mp.solutions.drawing_utils # 骨格描画用
 
 pose = mp_pose.Pose(
     static_image_mode=False,         # 動画モード（追跡あり）
-    model_complexity=0,              # モデルの複雑さ（0:軽量,1:標準,2:高精度）
+    model_complexity=2,              # モデルの複雑さ（0:軽量,1:標準,2:高精度）
     smooth_landmarks=True,           # 座標を平滑化してブレを減らす
     min_detection_confidence=0.5,    # 検出信頼度の閾値
     min_tracking_confidence=0.5      # 追跡信頼度の閾値
@@ -126,7 +126,9 @@ while cap.isOpened():
             
         if action.check_sitting(all_landmarks[-1]) :
             action.change_message("sit")
-                    
+        
+        if action.judge_closs_arms(all_landmarks[-1]) :
+            action.change_message("closs")
         
         if action.is_tpose(pose_results.pose_landmarks.landmark) :
             action.change_message("tpose")
@@ -141,12 +143,13 @@ while cap.isOpened():
         for hand_no, hand_landmarks in enumerate(hands_results.multi_hand_landmarks):
 
             # 手骨格を描画
+            """
             mp_draw.draw_landmarks(
                 frame,
                 hand_landmarks,
                 mp_hands.HAND_CONNECTIONS
             )
-
+            """
             h, w, _ = frame.shape
 
             # 手は21個のランドマークを持つ

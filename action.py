@@ -8,7 +8,7 @@ class action() :
         self._swing_last_frames: deque = deque(maxlen=25)
         self._tpose_start_time = None #時間のための変数，Tポーズを始めた時刻
         self._tpose_detected = False #Tポーズを認識したかどうかの変数，最初は認識してないからFalse
-        self._message = {"jump": False, "sit": False, "crap": False, "grab": False, "tpose": False, "swing": False}
+        self._message = {"jump": False, "sit": False, "crap": False, "grab": False, "tpose": False, "swing": False, "closs": False}
     
     @property
     def jump_last_frames(self) :
@@ -215,10 +215,71 @@ class action() :
             top =  (self.swing_last_frames[10]+ self.swing_last_frames[11]+ self.swing_last_frames[12]) / 3
             right_side = (self.swing_last_frames[15]+ self.swing_last_frames[16]+ self.swing_last_frames[17]) / 3
             right_foot = (self.swing_last_frames[20]+ self.swing_last_frames[21]+ self.swing_last_frames[22]) / 3
-            if (left_foot > left_side and left_side > top and top > right_side and right_side > right_foot and left_foot - right_foot >= 0.1) :
+            if (left_foot < left_side and left_side < top and top < right_side and right_side < right_foot and right_foot - left_foot >= 0.1) :
                 return True
             else :
                 return False
         else :
             return False
         
+    def judge_closs_arms(self, now_frame) :
+        """
+        両手の肘と手首を結んだ線が交わればTrue
+        """
+        
+        left_elbow = now_frame[13]
+        right_elbow = now_frame[14]
+        left_wrist = now_frame[15]
+        right_wrist = now_frame[16]
+        
+        vert  = type("Hoge", (object,), {
+            "top": 0,
+            "bottom": 0,
+            "center": lambda self: (self.top[0] + self.bottom[0]) / 2,
+            "not_empty" : lambda self: (self.top != 0 and self.bottom != 0)
+        })
+        
+        horiz = type("Hoge", (object,), {
+            "left": 0,
+            "right": 0,
+            "center": lambda self: (self.left[1] + self.right[1]) / 2,
+            "not_empty" : lambda self: (self.left != 0 and self.right != 0)
+        })
+        
+        # 手首と肘のx座標の差が小さいほうの手をvertとする
+        if abs(left_elbow[0] - left_wrist[0]) <= 0.1 :
+            vert.top = left_wrist
+            vert.bottom = left_wrist
+        elif abs(right_elbow[0] - right_wrist[0]) <= 0.1 :
+            vert.top = right_wrist
+            vert.bottom = right_wrist
+        
+        # 手首と肘のy座標の差が小さいほうの手をhorizとするo
+        # 左手がhorizのときは手首がleft
+        if abs(left_elbow[1] - left_wrist[1] <= 0.1) :
+            horiz.left = left_wrist
+            horiz.right = left_elbow
+        elif abs(right_elbow[1] - right_wrist[1] <= 0.1) :
+            horiz.left = right_elbow
+            horiz.right = right_wrist
+            
+        print(horiz.right)
+        print(horiz.left)
+        print(vert.top)
+        print(vert.bottom)
+            
+        # horizの中心点のy座標が、vertの手首よりも低く、肘よりも高い
+        # y座標は天井から床の向き
+        # vertの中心点のx座標が、horizの手首よりも低く、肘よりも高い
+        horiz_c = horiz.center(horiz)
+        vert_c = vert.center(vert)
+        if (vert.not_empty 
+            and horiz.not_empty
+            and vert.top[1] - 0.1 < horiz_c 
+            and vert.bottom[1] + 0.1 > horiz_c
+            and horiz.left[0] - 0.1 < vert_c
+            and horiz.right[0] + 0.1 > vert_c
+            ) :
+            return True
+        else :
+            return False
