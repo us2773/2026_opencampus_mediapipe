@@ -44,7 +44,7 @@ for i in range(32) :
     header.append(f"{i+1}_x")
     header.append(f"{i+1}_y")
     
-csv_result.append(header)
+# csv_result.append(header)
 
 floor_y = 0
 last_frames = deque(maxlen=25)
@@ -119,6 +119,9 @@ while cap.isOpened():
             
         if action.check_jumping(csv_result[-1]) :
             action.change_message("jump")
+            
+        if action.judge_swing(csv_result[-1]) :
+            action.change_message("swing")
             
         if action.check_sitting(csv_result[-1]) :
             action.change_message("sit")

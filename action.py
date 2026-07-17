@@ -5,6 +5,7 @@ import math
 class action() :
     def __init__(self) :
         self._last_frames: deque = deque(maxlen=25)
+        self._swing_last_frames: deque = deque(maxlen=25)
         self._tpose_start_time = None #時間のための変数，Tポーズを始めた時刻
         self._tpose_detected = False #Tポーズを認識したかどうかの変数，最初は認識してないからFalse
         self._message = {"jump": False, "sit": False, "crap": False, "grab": False, "tpose": False}
@@ -12,6 +13,10 @@ class action() :
     @property
     def last_frames(self) :
         return self._last_frames
+    
+    @property
+    def swing_last_frames(self) :
+        return self._swing_last_frames
     
     @property
     def message(self) :
@@ -33,6 +38,8 @@ class action() :
         
     def add_que(self, frame) :
         self._last_frames.append(frame)
+    def add_swing_que(self, frame) :
+        self._swing_last_frames.append(frame)
 
     def check_jumping(self, now_frame) :
         left_hip = now_frame[45]
@@ -188,3 +195,28 @@ class action() :
         #self._message = {"jump": False, "sit": False, "crap": False, "grab": False, "tpose": False}
         for key, _ in self.message.items() :
             self.message[key] = False
+    
+    def judge_swing(self, now_frame) :
+        left_hip = now_frame[45]
+        left_wrist = now_frame[15]
+        right_wrist = now_frame[16]
+        hands_height = 0
+        
+        if abs(left_wrist[0] - right_wrist[0]) <= 0.1 :
+            hands_height = left_wrist[1]
+        
+        #self.last_frames.append(left_hip)
+        self.add_swing_que(hands_height)
+        if len(self.swing_last_frames) == 25 :
+            
+            left_foot = (self.swing_last_frames[0]+ self.swing_last_frames[1]+ self.swing_last_frames[2]) / 3
+            left_side = (self.swing_last_frames[5]+ self.swing_last_frames[6]+ self.swing_last_frames[7]) / 3
+            top =  (self.swing_last_frames[10]+ self.swing_last_frames[11]+ self.swing_last_frames[12]) / 3
+            right_side = (self.swing_last_frames[15]+ self.swing_last_frames[16]+ self.swing_last_frames[17]) / 3
+            right_foot = (self.swing_last_frames[20]+ self.swing_last_frames[21]+ self.swing_last_frames[22]) / 3
+            if (left_foot > left_side and left_side > top and top > right_side and right_side > right_foot and left_foot - right_foot >= 0.1) :
+                return True
+            else :
+                return False
+        else :
+            return False
