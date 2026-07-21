@@ -263,7 +263,6 @@ class action() :
 
     # 線分同士の交差判定
     def segments_intersect(self, a1, a2, b1, b2):
-        """線分同士が交差しているか"""
 
         c1 = self.ccw(a1, a2, b1)
         c2 = self.ccw(a1, a2, b2)
@@ -297,6 +296,12 @@ class action() :
         right_elbow = now_frame[14]
         left_wrist = now_frame[15]
         right_wrist = now_frame[16]
+        print(len(now_frame))
+
+        print(f"left_elbow: {left_elbow}")
+        print(f"right_elbow: {right_elbow}")
+        print(f"left_wrist: {left_wrist}")
+        print(f"right_wrist: {right_wrist}")
 
         # 肘と手首から腕の角度を算出
         left_angle = math.degrees(
@@ -318,8 +323,19 @@ class action() :
         left_vert = self.is_vertical(left_angle)
         right_vert = self.is_vertical(right_angle)
 
+        print(f"left_horiz: {left_horiz}")
+        print(f"right_horiz: {right_horiz}")
+        print(f"left_vert: {left_vert}")
+        print(f"right_vert: {right_vert}")
+
+        print(f"left_angle : {left_angle:.1f}")
+        print(f"right_angle: {right_angle:.1f}")
+
+        dist = self.segment_distance([left_elbow, left_wrist], [right_elbow, right_wrist])
+        print(f"distance: {dist}")
+
         # 左右の手の肘と手首を結んだ線分の距離が閾値未満であり、かつ片方が鉛直、片方が水平ならTrueを返す
-        if self.segment_distance([left_elbow, left_wrist], [right_elbow, right_wrist]) <= th :
+        if dist <= th :
             if (left_horiz and right_vert) or (right_horiz and left_vert):
                 return True
         else :

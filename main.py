@@ -98,8 +98,8 @@ while cap.isOpened():
         )
         landmarks = [] 
         # 33個のランドマークについて座標を取得
-        for idx in range(1, 33):
-            if idx in range(1, 33) :
+        for idx in range(0, 33):
+            if idx in range(0, 33) :
                 lm = pose_results.pose_landmarks.landmark[idx]
 
                 # 画像サイズ取得
@@ -117,6 +117,27 @@ while cap.isOpened():
             #landmarks.append(y)
             landmarks.append([x,y])
         all_landmarks.append(landmarks) 
+
+        print_idx = 31
+        p = all_landmarks[-1][print_idx]
+
+        cv2.circle(
+            frame,
+            (int(p[0] * w), int(p[1] * h)),
+            8,
+            (0, 0, 255),
+            -1
+        )
+
+        cv2.putText(
+            frame,
+            f"{print_idx}",
+            (int(p[0] * w) + 10, int(p[1] * h)),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.8,
+            (0, 0, 255),
+            2
+        )
             
         if action.check_jumping(all_landmarks[-1]) :
             action.change_message("jump")
