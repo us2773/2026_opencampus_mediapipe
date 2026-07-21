@@ -249,17 +249,17 @@ class action() :
         # 手首と肘のx座標の差が小さいほうの手をvertとする
         if abs(left_elbow[0] - left_wrist[0]) <= 0.1 :
             vert.top = left_wrist
-            vert.bottom = left_wrist
+            vert.bottom = left_elbow
         elif abs(right_elbow[0] - right_wrist[0]) <= 0.1 :
             vert.top = right_wrist
-            vert.bottom = right_wrist
+            vert.bottom = right_elbow
         
-        # 手首と肘のy座標の差が小さいほうの手をhorizとするo
+        # 手首と肘のy座標の差が小さいほうの手をhorizとする
         # 左手がhorizのときは手首がleft
-        if abs(left_elbow[1] - left_wrist[1] <= 0.1) :
+        if abs(left_elbow[1] - left_wrist[1]) <= 0.1 :
             horiz.left = left_wrist
             horiz.right = left_elbow
-        elif abs(right_elbow[1] - right_wrist[1] <= 0.1) :
+        elif abs(right_elbow[1] - right_wrist[1]) <= 0.1 :
             horiz.left = right_elbow
             horiz.right = right_wrist
             
@@ -273,12 +273,12 @@ class action() :
         # vertの中心点のx座標が、horizの手首よりも低く、肘よりも高い
         horiz_c = horiz.center(horiz)
         vert_c = vert.center(vert)
-        if (vert.not_empty 
-            and horiz.not_empty
-            and vert.top[1] - 0.1 < horiz_c 
-            and vert.bottom[1] + 0.1 > horiz_c
-            and horiz.left[0] - 0.1 < vert_c
-            and horiz.right[0] + 0.1 > vert_c
+        if (vert.not_empty() 
+            and horiz.not_empty(horiz)
+            and vert.top[1] - 0.1 < horiz_c(horiz) 
+            and vert.bottom[1] + 0.1 > horiz_c(horiz)
+            and horiz.left[0] - 0.1 < vert_c(vert)
+            and horiz.right[0] + 0.1 > vert_c(vert)
             ) :
             return True
         else :
