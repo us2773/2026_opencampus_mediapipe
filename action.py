@@ -221,7 +221,76 @@ class action() :
                 return False
         else :
             return False
-        
+
+    def is_horizontal(self, angle):
+        return (
+            abs(angle) <= 30 or
+            abs(abs(angle) - 180) <= 30
+        )
+    
+    def is_vertical(self, angle):
+        return abs(abs(angle) - 90) <= 30
+    
+    def point_segment_distance(self, p, s, e):
+        """
+        点pと線分seの最短距離
+        p, s, e : [x, y]
+        """
+
+        sx, sy = s
+        ex, ey = e
+        px, py = p
+
+        dx = ex - sx
+        dy = ey - sy
+
+        # 線分の長さが0（始点と終点が同じ）
+        if dx == 0 and dy == 0:
+            return math.hypot(px - sx, py - sy)
+
+        # 射影位置
+        t = ((px - sx) * dx + (py - sy) * dy) / (dx * dx + dy * dy)
+
+        # 線分内に制限
+        t = max(0.0, min(1.0, t))
+
+        nearest_x = sx + t * dx
+        nearest_y = sy + t * dy
+
+        return math.hypot(px - nearest_x, py - nearest_y)
+
+
+    def ccw(self, a, b, c):
+        """3点が反時計回りならTrue"""
+        return (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
+
+
+    def segments_intersect(self, a1, a2, b1, b2):
+        """線分同士が交差しているか"""
+
+        c1 = self.ccw(a1, a2, b1)
+        c2 = self.ccw(a1, a2, b2)
+        c3 = self.ccw(b1, b2, a1)
+        c4 = self.ccw(b1, b2, a2)
+
+        return c1 * c2 <= 0 and c3 * c4 <= 0
+
+
+    def segment_distance(self, a, b):
+        as_, ae = a
+        bs, be = b
+
+        # 交差していれば距離0
+        if self.segments_intersect(as_, ae, bs, be):
+            return 0.0
+
+        return min(
+            self.point_segment_distance(as_, bs, be),
+            self.point_segment_distance(ae, bs, be),
+            self.point_segment_distance(bs, as_, ae),
+            self.point_segment_distance(be, as_, ae),
+        )
+  
     def judge_closs_arms(self, now_frame) :
         """
         両手の肘と手首を結んだ線が交わればTrue
@@ -231,55 +300,38 @@ class action() :
         right_elbow = now_frame[14]
         left_wrist = now_frame[15]
         right_wrist = now_frame[16]
+
+        left_center = [left_elbow[0] + left_wrist[0] / 2, left_elbow[1] + left_wrist[1] / 2]
+        right_center = [right_elbow[0] + right_wrist[0] / 2, right_elbow[1] + right_wrist[1] / 2]
+
+        center_distance = math.sqrt((left_center[0] - right_center[0]) ** 2 + (left_center[1] - right_center[1]) ** 2)
+
+        left_angle = math.degrees(
+            math.atan2(
+                left_wrist[1] - left_elbow[1],
+                left_wrist[0] - left_elbow[0]
+            )
+        )
+
+        right_angle = math.degrees(
+            math.atan2(
+                right_wrist[1] - right_elbow[1],
+                right_wrist[0] - right_elbow[0]
+            )
+        )
         
-        vert  = type("Hoge", (object,), {
-            "top": 0,
-            "bottom": 0,
-            "center": lambda self: (self.top[0] + self.bottom[0]) / 2,
-            "not_empty" : lambda self: (self.top != 0 and self.bottom != 0)
-        })
-        
-        horiz = type("Hoge", (object,), {
-            "left": 0,
-            "right": 0,
-            "center": lambda self: (self.left[1] + self.right[1]) / 2,
-            "not_empty" : lambda self: (self.left != 0 and self.right != 0)
-        })
-        
-        # 手首と肘のx座標の差が小さいほうの手をvertとする
-        if abs(left_elbow[0] - left_wrist[0]) <= 0.1 :
-            vert.top = left_wrist
-            vert.bottom = left_elbow
-        elif abs(right_elbow[0] - right_wrist[0]) <= 0.1 :
-            vert.top = right_wrist
-            vert.bottom = right_elbow
-        
-        # 手首と肘のy座標の差が小さいほうの手をhorizとする
-        # 左手がhorizのときは手首がleft
-        if abs(left_elbow[1] - left_wrist[1]) <= 0.1 :
-            horiz.left = left_wrist
-            horiz.right = left_elbow
-        elif abs(right_elbow[1] - right_wrist[1]) <= 0.1 :
-            horiz.left = right_elbow
-            horiz.right = right_wrist
-            
-        print(horiz.right)
-        print(horiz.left)
-        print(vert.top)
-        print(vert.bottom)
+        left_horiz = self.is_horizontal(left_angle)
+        right_horiz = self.is_horizontal(right_angle)
+
+        left_vert = self.is_vertical(left_angle)
+        right_vert = self.is_vertical(right_angle)
+
             
         # horizの中心点のy座標が、vertの手首よりも低く、肘よりも高い
         # y座標は天井から床の向き
         # vertの中心点のx座標が、horizの手首よりも低く、肘よりも高い
-        horiz_c = horiz.center(horiz)
-        vert_c = vert.center(vert)
-        if (vert.not_empty() 
-            and horiz.not_empty(horiz)
-            and vert.top[1] - 0.1 < horiz_c(horiz) 
-            and vert.bottom[1] + 0.1 > horiz_c(horiz)
-            and horiz.left[0] - 0.1 < vert_c(vert)
-            and horiz.right[0] + 0.1 > vert_c(vert)
-            ) :
-            return True
+        if (left_horiz and right_vert) or (right_horiz and left_vert):
+            if self.segment_distance([left_elbow, left_wrist], [right_elbow, right_wrist]) <= 0.1 :
+                return True
         else :
-            return False
+            False
