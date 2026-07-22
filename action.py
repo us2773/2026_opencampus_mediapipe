@@ -7,6 +7,9 @@ class action() :
         self._last_frames: deque = deque(maxlen=25)
         self._tpose_start_time = None #時間のための変数，Tポーズを始めた時刻
         self._tpose_detected = False #Tポーズを認識したかどうかの変数，最初は認識してないからFalse
+        self._kamehameha_start_time = None #かめはめ波を始めた時間
+        self._kamehameha_detected = False #かめはめ波を認識したかどうか
+        self.wrist_y = deque(maxlen=10) #手首の座標を取得するためのdeque       
     
     @property
     def last_frames(self) :
@@ -20,11 +23,26 @@ class action() :
     def tpose_detected(self) :
         return self._tpose_detected
     
+    @property
+    def kamehameha_start_time(self):
+        return self._kamehameha_start_time
+    
+    @property
+    def kamehameha_detected(self):
+        return self._kamehameha_detected
+
     def update_tpose_start_time(self, v) :
         self._tpose_start_time = v
         
     def update_topse_detected(self, v) :
         self._tpose_detected = v
+
+    def update_kamehameha_start_time(self, v) :
+        self._kamehameha_start_time = v
+        
+    def update_kamehameha_detected(self, v) :
+        self._kamehameha_detected = v
+
         
     def add_que(self, frame) :
         self._last_frames.append(frame)
@@ -106,7 +124,34 @@ class action() :
             150 <= left_elbow_angle <= 180 and
             150 <= right_elbow_angle <= 180
         )
+    
+    def judge_upper(self, landmarks):
+
+        #ランドマーク取得
+        shoulder = {
+            "left_shoulder": landmarks[11],
+            "right_shoulder": landmarks[12]
+        }
+        elbow = {
+            "left_elbow": landmarks[13],
+            "right_elbow": landmarks[14]
+        }
+        wrist = {
+            "left_wrist": landmarks[15],
+            "right_wrist": landmarks[16] 
+        }
         
+        left_v = self.update_speed(wrist["left_wrist"].x, wrist["left_wrist"].y)
+        right_v = self.update_speed(wrist["right_wrist"].x, wrist["right_wrist"].y)
+
+        if (
+            ((left_v > 1.2) and (wrist["left_wrist"].y > shoulder["left_shoulder"].y)) or 
+           ((right_v > 1.2) and (wrist["right_wrist"].y > shoulder["right_shoulder"].y))
+        ):
+            return True
+        else:
+            return False
+            
     def is_tpose(self, landmarks) :
             # T字判定（6/30追加）
             
@@ -129,7 +174,8 @@ class action() :
             #tpose_detected = False
             self.update_topse_detected(False)
             return False
-        
+            
+
     # 2点間の距離
     def distance(self, p1, p2):
         return math.sqrt(
@@ -138,14 +184,14 @@ class action() :
         )
         
     def judge_crap(self, hand1, hand2):
-                    
+
         hand_distance = self.distance(
-            hand1.landmark[12],
-            hand2.landmark[12]
+            hand1.landmark[13],
+            hand2.landmark[13]
         )
 
         # しきい値
-        if hand_distance < 0.10:
+        if hand_distance < 0.05:
             return True
         else :
             return False
@@ -174,3 +220,63 @@ class action() :
                 count += 1
         
         return count == 4
+    
+
+        #かめはめ波を判定
+    def judge_kamehameha(self, hand1, hand2):
+        hand_distance = self.distance(
+            hand1.landmark[0],
+            hand2.landmark[0]
+        )
+
+        abs_wrist = abs(hand1.landmark[0].x - hand2.landmark[0].x)
+        abs_mid_finger = abs(hand1.landmark[12].x - hand2.landmark[12].x)
+
+        if (
+            (hand_distance < 0.05) and
+            (abs_wrist < 0.1) and (abs_mid_finger < 0.1)
+        ):
+            return True
+        
+        else:
+            return False
+
+
+    #かめはめ波を判定
+    def is_kamehameha(self, hand1, hand2) :
+            
+        if self.judge_kamehameha(hand1, hand2):
+
+            # かめはめ波の開始時刻を設定
+            if self.kamehameha_start_time is None:
+                self.update_kamehameha_start_time(time.time())
+                return False
+
+            # 3秒以上維持したら認識
+            elif time.time() - self.kamehameha_start_time >= 3: #開始時間と維持を続けた時の現在時間を比較
+                self.update_kamehameha_detected(True)
+                return True
+        else:
+            # 条件を外れたらリセット
+            self.update_kamehameha_start_time(None)
+            self.update_kamehameha_detected(False)
+            return False
+        
+    def judge_upper(self, wrist_y, shoulder_y):
+        self.wrist_y.append(wrist_y)
+
+        if len(self.wrist_y) < 10:
+            return False
+        
+        start = sum(list(self.wrist_y[0:3])) / 3
+        end = sum(list(self.wrist_y[-3:])) / 3
+
+        dy = start - end
+
+        if (
+            (wrist_y < shoulder_y) and
+            dy > 0.06
+        ):
+            return True
+        
+        return False

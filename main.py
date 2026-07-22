@@ -58,8 +58,8 @@ sender = client.client()
 while cap.isOpened():
     
     now = datetime.now()
-    print("現在時刻:", now) 
-    print("ミリ秒:", now.microsecond // 1000)  # microsecondはマイクロ秒（μs）
+    # print("現在時刻:", now) 
+    # print("ミリ秒:", now.microsecond // 1000)  # microsecondはマイクロ秒（μs）
     count += 1
     # カメラから画像を取得
     ret, frame = cap.read()
@@ -69,7 +69,7 @@ while cap.isOpened():
         break
 
     # 左右反転（鏡表示）
-    frame = cv2.flip(frame, 1)
+    # frame = cv2.flip(frame, 1)
 
     # OpenCV(BGR) → MediaPipe(RGB)へ変換
     rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -129,6 +129,8 @@ while cap.isOpened():
         if action.check_tpose(pose_results.pose_landmarks.landmark) :
             print("tpose_continue")
             sender.send_command("tpose_continue")
+
+
     # Hands（手骨格）
     
     if hands_results.multi_hand_landmarks:
@@ -164,6 +166,14 @@ while cap.isOpened():
                     if action.judge_crap(hand1, hand2) :
                         print("crap")
                         sender.send_command("crap")
+
+                    if action.is_kamehameha(hand1, hand2) :
+                        print("kamehameha")
+                        sender.send_command("kamehameha")
+            
+                    if action.judge_kamehameha(hand1, hand2) :
+                        print("kamehameha_continue")
+                        sender.send_command("kamehameha_continue")
                 
     # 結果を表示
     cv2.imshow("Pose + Hands", frame)
