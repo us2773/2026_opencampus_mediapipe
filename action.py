@@ -5,7 +5,7 @@ import math
 class action() :
     def __init__(self) :
         self._jump_last_frames: deque = deque(maxlen=25)
-        self._swing_last_frames: deque = deque(maxlen=25)
+        self._swing_last_frames: deque = deque(maxlen=15)
         self._tpose_start_time = None #時間のための変数，Tポーズを始めた時刻
         self._tpose_detected = False #Tポーズを認識したかどうかの変数，最初は認識してないからFalse
         self._message = {"jump": False, "sit": False, "crap": False, "grab": False, "tpose": False, "swing": False, "closs": False}
@@ -202,20 +202,22 @@ class action() :
         right_wrist = now_frame[16]
         hands_height = 0
         
+        """
         if abs(left_wrist[0] - right_wrist[0]) <= 0.1 :
             hands_height = left_wrist[1]
             print("swing: closing both hands")
+        """
         
-        #self.last_frames.append(left_hip)
+        hands_height = ( left_wrist[1] + right_wrist[1] ) / 2
+        print(hands_height)
         self.add_swing_que(hands_height)
-        if len(self.swing_last_frames) == 25 :
+        if len(self.swing_last_frames) == 15 :
             
-            left_foot = (self.swing_last_frames[0]+ self.swing_last_frames[1]+ self.swing_last_frames[2]) / 3
-            left_side = (self.swing_last_frames[5]+ self.swing_last_frames[6]+ self.swing_last_frames[7]) / 3
-            top =  (self.swing_last_frames[10]+ self.swing_last_frames[11]+ self.swing_last_frames[12]) / 3
-            right_side = (self.swing_last_frames[15]+ self.swing_last_frames[16]+ self.swing_last_frames[17]) / 3
-            right_foot = (self.swing_last_frames[20]+ self.swing_last_frames[21]+ self.swing_last_frames[22]) / 3
-            if (left_foot < left_side and left_side < top and top < right_side and right_side < right_foot and right_foot - left_foot >= 0.1) :
+            top = (self.swing_last_frames[0]+ self.swing_last_frames[1]+ self.swing_last_frames[2]) / 3
+            middle =  (self.swing_last_frames[6]+ self.swing_last_frames[7]+ self.swing_last_frames[8]) / 3
+            foot = (self.swing_last_frames[12]+ self.swing_last_frames[13]+ self.swing_last_frames[14]) / 3
+            print(f"top: {top}, middle: {middle}, foot: {foot}")
+            if (top < middle and middle < foot and foot - top >= 0.1) :
                 return True
             else :
                 return False
@@ -296,12 +298,6 @@ class action() :
         right_elbow = now_frame[14]
         left_wrist = now_frame[15]
         right_wrist = now_frame[16]
-        print(len(now_frame))
-
-        print(f"left_elbow: {left_elbow}")
-        print(f"right_elbow: {right_elbow}")
-        print(f"left_wrist: {left_wrist}")
-        print(f"right_wrist: {right_wrist}")
 
         # 肘と手首から腕の角度を算出
         left_angle = math.degrees(
@@ -323,16 +319,7 @@ class action() :
         left_vert = self.is_vertical(left_angle)
         right_vert = self.is_vertical(right_angle)
 
-        print(f"left_horiz: {left_horiz}")
-        print(f"right_horiz: {right_horiz}")
-        print(f"left_vert: {left_vert}")
-        print(f"right_vert: {right_vert}")
-
-        print(f"left_angle : {left_angle:.1f}")
-        print(f"right_angle: {right_angle:.1f}")
-
         dist = self.segment_distance([left_elbow, left_wrist], [right_elbow, right_wrist])
-        print(f"distance: {dist}")
 
         # 左右の手の肘と手首を結んだ線分の距離が閾値未満であり、かつ片方が鉛直、片方が水平ならTrueを返す
         if dist <= th :
