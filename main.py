@@ -66,7 +66,7 @@ def send_message(messages: dict) :
 while cap.isOpened():
     
     now = datetime.now()
-    print("現在時刻:", now) 
+    #print("現在時刻:", now) 
     #print("ミリ秒:", now.microsecond // 1000)  # microsecondはマイクロ秒（μs）
     count += 1
     # カメラから画像を取得
@@ -129,6 +129,17 @@ while cap.isOpened():
             
         if action.check_tpose(pose_results.pose_landmarks.landmark) :
             action.change_message("tpose_continue")
+
+        #追加
+        if action.is_surprise(pose_results.pose_landmarks.landmark):
+            action.change_message("surprise")
+
+        if action.check_surprise(pose_results.pose_landmarks.landmark):
+            action.change_message("surprise_continue")
+
+        if action.check_kick(pose_results.pose_landmarks.landmark):
+            action.change_message("Kick")
+
     # Hands（手骨格）
     
     if hands_results.multi_hand_landmarks:
