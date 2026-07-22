@@ -4,7 +4,8 @@ import math
 
 class action() :
     def __init__(self) :
-        self._last_frames: deque = deque(maxlen=25)
+        self._jump_last_frames: deque = deque(maxlen=25)
+        self._swing_last_frames: deque = deque(maxlen=15)
         self._tpose_start_time = None #時間のための変数，Tポーズを始めた時刻
         self._tpose_detected = False #Tポーズを認識したかどうかの変数，最初は認識してないからFalse
         self._kamehameha_start_time = None #かめはめ波を始めた時間
@@ -14,11 +15,15 @@ class action() :
         self._surprise_start_time = None #時間のための変数，驚かしポーズを始めた時刻
         self._surprise_detected = False #驚かしポーズを認識したかどうかの変数，最初は認識してないからFalse
         #追加
-        self._message = {"surprise": False, "Kick": False, "jump": False, "sit": False, "crap": False, "grab": False, "tpose": False, "surprise": False, "kamehameha": False, "kamehameha_continue": False}
+        self._message = {"surprise": False, "Kick": False, "jump": False, "sit": False, "crap": False, "grab": False, "tpose": False, "surprise": False, "kamehameha": False, "kamehameha_continue": False, "swing": False, "closs": False}
     
     @property
-    def last_frames(self) :
-        return self._last_frames
+    def jump_last_frames(self) :
+        return self._jump_last_frames
+    
+    @property
+    def swing_last_frames(self) :
+        return self._swing_last_frames
     
     @property
     def message(self) :
@@ -71,18 +76,23 @@ class action() :
     
     def add_que(self, frame) :
         self._last_frames.append(frame)
+    def add_jump_que(self, frame) :
+        self._jump_last_frames.append(frame)
+
+    def add_swing_que(self, frame) :
+        self._swing_last_frames.append(frame)
 
     def check_jumping(self, now_frame) :
-        left_hip = now_frame[45]
+        left_hip = now_frame[23][1] #45
         #self.last_frames.append(left_hip)
-        self.add_que(left_hip)
-        if len(self.last_frames) == 25 :
+        self.add_jump_que(left_hip)
+        if len(self.jump_last_frames) == 25 :
             
-            left_foot = (self.last_frames[0]+ self.last_frames[1]+ self.last_frames[2]) / 3
-            left_side = (self.last_frames[5]+ self.last_frames[6]+ self.last_frames[7]) / 3
-            top =  (self.last_frames[10]+ self.last_frames[11]+ self.last_frames[12]) / 3
-            right_side = (self.last_frames[15]+ self.last_frames[16]+ self.last_frames[17]) / 3
-            right_foot = (self.last_frames[20]+ self.last_frames[21]+ self.last_frames[22]) / 3
+            left_foot = (self.jump_last_frames[0]+ self.jump_last_frames[1]+ self.jump_last_frames[2]) / 3
+            left_side = (self.jump_last_frames[5]+ self.jump_last_frames[6]+ self.jump_last_frames[7]) / 3
+            top =  (self.jump_last_frames[10]+ self.jump_last_frames[11]+ self.jump_last_frames[12]) / 3
+            right_side = (self.jump_last_frames[15]+ self.jump_last_frames[16]+ self.jump_last_frames[17]) / 3
+            right_foot = (self.jump_last_frames[20]+ self.jump_last_frames[21]+ self.jump_last_frames[22]) / 3
             if (left_foot > left_side and left_side > top and top < right_side and right_side < right_foot and left_foot - top >= 0.05) :
                 return True
             else :
@@ -91,10 +101,10 @@ class action() :
             return False
         
     def check_sitting(self, now_frame): 
-        left_hip = now_frame[45]
-        right_hip = now_frame[47]
-        left_knee = now_frame[49]
-        right_knee = now_frame[51]
+        left_hip = now_frame[23][1]
+        right_hip = now_frame[24][1]
+        left_knee = now_frame[25][1]
+        right_knee = now_frame[26][1]
         
         if left_hip > left_knee and right_hip > right_knee :
             return True
@@ -410,3 +420,134 @@ class action() :
             return True
         
         return False
+    
+    def judge_swing(self, now_frame) :
+        left_wrist = now_frame[15]
+        right_wrist = now_frame[16]
+        hands_height = 0
+        
+        """
+        if abs(left_wrist[0] - right_wrist[0]) <= 0.1 :
+            hands_height = left_wrist[1]
+            print("swing: closing both hands")
+        """
+        
+        hands_height = ( left_wrist[1] + right_wrist[1] ) / 2
+        print(hands_height)
+        self.add_swing_que(hands_height)
+        if len(self.swing_last_frames) == 15 :
+            
+            top = (self.swing_last_frames[0]+ self.swing_last_frames[1]+ self.swing_last_frames[2]) / 3
+            middle =  (self.swing_last_frames[6]+ self.swing_last_frames[7]+ self.swing_last_frames[8]) / 3
+            foot = (self.swing_last_frames[12]+ self.swing_last_frames[13]+ self.swing_last_frames[14]) / 3
+            print(f"top: {top}, middle: {middle}, foot: {foot}")
+            if (top < middle and middle < foot and foot - top >= 0.1) :
+                return True
+            else :
+                return False
+        else :
+            return False
+
+    # 水平判定
+    def is_horizontal(self, angle):
+        return (
+            abs(angle) <= 30 or
+            abs(abs(angle) - 180) <= 30
+        )
+    
+    # 鉛直判定
+    def is_vertical(self, angle):
+        return abs(abs(angle) - 90) <= 30
+    
+    # 点と線分の最短距離を算出
+    def point_segment_distance(self, p, s, e):
+
+        sx, sy = s
+        ex, ey = e
+        px, py = p
+
+        dx = ex - sx
+        dy = ey - sy
+
+        # 線分の長さが0（始点と終点が同じ）
+        if dx == 0 and dy == 0:
+            return math.hypot(px - sx, py - sy)
+
+        # 射影位置
+        t = ((px - sx) * dx + (py - sy) * dy) / (dx * dx + dy * dy)
+
+        # 線分内に収める
+        t = max(0.0, min(1.0, t))
+
+        nearest_x = sx + t * dx
+        nearest_y = sy + t * dy
+
+        return math.hypot(px - nearest_x, py - nearest_y)
+
+    def ccw(self, a, b, c):
+        return (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
+
+    # 線分同士の交差判定
+    def segments_intersect(self, a1, a2, b1, b2):
+
+        c1 = self.ccw(a1, a2, b1)
+        c2 = self.ccw(a1, a2, b2)
+        c3 = self.ccw(b1, b2, a1)
+        c4 = self.ccw(b1, b2, a2)
+
+        return c1 * c2 <= 0 and c3 * c4 <= 0
+
+    # 2つの線分の最短距離を算出
+    def segment_distance(self, left_arm, right_arm):
+        ls, le = left_arm
+        rs, re = right_arm
+
+        # 交差判定
+        if self.segments_intersect(ls, le, rs, re):
+            return 0.0
+
+        return min(
+            self.point_segment_distance(ls, rs, re),
+            self.point_segment_distance(le, rs, re),
+            self.point_segment_distance(rs, ls, le),
+            self.point_segment_distance(re, ls, le),
+        )
+
+    def judge_closs_arms(self, now_frame) :
+        # 閾値
+        th = 0.1
+        
+        # 肘と手首の座標
+        left_elbow = now_frame[13]
+        right_elbow = now_frame[14]
+        left_wrist = now_frame[15]
+        right_wrist = now_frame[16]
+
+        # 肘と手首から腕の角度を算出
+        left_angle = math.degrees(
+            math.atan2(
+                left_wrist[1] - left_elbow[1],
+                left_wrist[0] - left_elbow[0]
+            )
+        )
+        right_angle = math.degrees(
+            math.atan2(
+                right_wrist[1] - right_elbow[1],
+                right_wrist[0] - right_elbow[0]
+            )
+        )
+        
+        # 手の向き判定
+        left_horiz = self.is_horizontal(left_angle)
+        right_horiz = self.is_horizontal(right_angle)
+        left_vert = self.is_vertical(left_angle)
+        right_vert = self.is_vertical(right_angle)
+
+        dist = self.segment_distance([left_elbow, left_wrist], [right_elbow, right_wrist])
+
+        # 左右の手の肘と手首を結んだ線分の距離が閾値未満であり、かつ片方が鉛直、片方が水平ならTrueを返す
+        if dist <= th :
+            if (left_horiz and right_vert) or (right_horiz and left_vert):
+                return True
+        else :
+            False
