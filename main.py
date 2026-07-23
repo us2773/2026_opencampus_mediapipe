@@ -18,7 +18,7 @@ mp_draw = mp.solutions.drawing_utils # 骨格描画用
 
 pose = mp_pose.Pose(
     static_image_mode=False,         # 動画モード（追跡あり）
-    model_complexity=0,              # モデルの複雑さ（0:軽量,1:標準,2:高精度）
+    model_complexity=2,              # モデルの複雑さ（0:軽量,1:標準,2:高精度）
     smooth_landmarks=True,           # 座標を平滑化してブレを減らす
     min_detection_confidence=0.5,    # 検出信頼度の閾値
     min_tracking_confidence=0.5      # 追跡信頼度の閾値
@@ -37,14 +37,14 @@ hands = mp_hands.Hands(
 # 0はPC内蔵カメラを表す
 
 cap = cv2.VideoCapture(0)
-csv_result = []
+all_landmarks = []
 header = []
 
 for i in range(32) :
     header.append(f"{i+1}_x")
     header.append(f"{i+1}_y")
     
-csv_result.append(header)
+# csv_result.append(header)
 
 floor_y = 0
 last_frames = deque(maxlen=25)
@@ -66,7 +66,7 @@ def send_message(messages: dict) :
 while cap.isOpened():
     
     now = datetime.now()
-    print("現在時刻:", now) 
+    #print("現在時刻:", now) 
     #print("ミリ秒:", now.microsecond // 1000)  # microsecondはマイクロ秒（μs）
     count += 1
     # カメラから画像を取得
@@ -77,7 +77,7 @@ while cap.isOpened():
         break
 
     # 左右反転（鏡表示）
-    frame = cv2.flip(frame, 1)
+    # frame = cv2.flip(frame, 1)
 
     # OpenCV(BGR) → MediaPipe(RGB)へ変換
     rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -98,8 +98,8 @@ while cap.isOpened():
         )
         landmarks = [] 
         # 33個のランドマークについて座標を取得
-        for idx in range(1, 33):
-            if idx in range(1, 33) :
+        for idx in range(0, 33):
+            if idx in range(0, 33) :
                 lm = pose_results.pose_landmarks.landmark[idx]
 
                 # 画像サイズ取得
@@ -113,22 +113,42 @@ while cap.isOpened():
                 x = None
                 y = None
 
-            landmarks.append(x)
-            landmarks.append(y)
-        csv_result.append(landmarks) 
+            #landmarks.append(x)
+            #landmarks.append(y)
+            landmarks.append([x,y])
+        all_landmarks.append(landmarks) 
+
+        print_idx = 31
+        p = all_landmarks[-1][print_idx]
             
-        if action.check_jumping(csv_result[-1]) :
+        if action.check_jumping(all_landmarks[-1]) :
             action.change_message("jump")
             
-        if action.check_sitting(csv_result[-1]) :
+        if action.judge_swing(all_landmarks[-1]) :
+            action.change_message("swing")
+            
+        if action.check_sitting(all_landmarks[-1]) :
             action.change_message("sit")
-                    
+        
+        if action.judge_closs_arms(all_landmarks[-1]) :
+            action.change_message("closs")
         
         if action.is_tpose(pose_results.pose_landmarks.landmark) :
             action.change_message("tpose")
             
         if action.check_tpose(pose_results.pose_landmarks.landmark) :
             action.change_message("tpose_continue")
+
+        #追加
+        if action.is_surprise(pose_results.pose_landmarks.landmark):
+            action.change_message("surprise")
+
+        if action.check_surprise(pose_results.pose_landmarks.landmark):
+            action.change_message("surprise_continue")
+
+        if action.check_kick(pose_results.pose_landmarks.landmark):
+            action.change_message("Kick")
+
     # Hands（手骨格）
     
     if hands_results.multi_hand_landmarks:
@@ -137,12 +157,13 @@ while cap.isOpened():
         for hand_no, hand_landmarks in enumerate(hands_results.multi_hand_landmarks):
 
             # 手骨格を描画
+            """
             mp_draw.draw_landmarks(
                 frame,
                 hand_landmarks,
                 mp_hands.HAND_CONNECTIONS
             )
-
+            """
             h, w, _ = frame.shape
 
             # 手は21個のランドマークを持つ
@@ -160,9 +181,19 @@ while cap.isOpened():
                     if action.judge_grab(hand1) or action.judge_grab(hand2):
                         action.change_message("grab")
                     if action.judge_crap(hand1, hand2) :
-                        action.change_message("crap")
+                        action.change_message("clap")
+
+                        # print("crap")
+
+                    if action.is_kamehameha(hand1, hand2) :
+                        print("kamehameha")
+                        action.change_message("kamehameha")
+            
+                    if action.judge_kamehameha(hand1, hand2) :
+                        print("kamehameha_continue")
+                        action.change_message("kamehameha_continue")
     send_message(action.message)
-    print(action.message)
+    # print(action.message)
     action.reset_message()
 
     _, buffer = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 60])
@@ -191,4 +222,4 @@ hands.close()
 # 結果のCSV出力（なくてもいい）
 with open("result.csv", "w") as f :
     writer = csv.writer(f)
-    writer.writerows(csv_result)
+    writer.writerows(all_landmarks)
