@@ -19,4 +19,4 @@ class client() :
 
     def send_video(self, buffer) :
         self.sock.sendto(buffer, self.serverAddressPort)
-        print("send video")
+        # print("send video")

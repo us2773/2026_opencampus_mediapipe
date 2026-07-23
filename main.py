@@ -120,24 +120,6 @@ while cap.isOpened():
 
         print_idx = 31
         p = all_landmarks[-1][print_idx]
-
-        cv2.circle(
-            frame,
-            (int(p[0] * w), int(p[1] * h)),
-            8,
-            (0, 0, 255),
-            -1
-        )
-
-        cv2.putText(
-            frame,
-            f"{print_idx}",
-            (int(p[0] * w) + 10, int(p[1] * h)),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.8,
-            (0, 0, 255),
-            2
-        )
             
         if action.check_jumping(all_landmarks[-1]) :
             action.change_message("jump")
@@ -199,10 +181,9 @@ while cap.isOpened():
                     if action.judge_grab(hand1) or action.judge_grab(hand2):
                         action.change_message("grab")
                     if action.judge_crap(hand1, hand2) :
-                        action.change_message("crap")
+                        action.change_message("clap")
 
-                        print("crap")
-                        action.change_message("crap")
+                        # print("crap")
 
                     if action.is_kamehameha(hand1, hand2) :
                         print("kamehameha")
@@ -212,7 +193,7 @@ while cap.isOpened():
                         print("kamehameha_continue")
                         action.change_message("kamehameha_continue")
     send_message(action.message)
-    print(action.message)
+    # print(action.message)
     action.reset_message()
 
     _, buffer = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 60])

@@ -15,7 +15,7 @@ class action() :
         self._surprise_start_time = None #時間のための変数，驚かしポーズを始めた時刻
         self._surprise_detected = False #驚かしポーズを認識したかどうかの変数，最初は認識してないからFalse
         #追加
-        self._message = {"surprise": False, "Kick": False, "jump": False, "sit": False, "crap": False, "grab": False, "tpose": False, "surprise": False, "kamehameha": False, "kamehameha_continue": False, "swing": False, "closs": False}
+        self._message = {"surprise": False, "Kick": False, "jump": False, "sit": False, "crap": False, "grab": False, "tpose": False, "kamehameha": False, "kamehameha_continue": False, "swing": False, "closs": False}
     
     @property
     def jump_last_frames(self) :
@@ -433,14 +433,14 @@ class action() :
         """
         
         hands_height = ( left_wrist[1] + right_wrist[1] ) / 2
-        print(hands_height)
+        # print(hands_height)
         self.add_swing_que(hands_height)
         if len(self.swing_last_frames) == 15 :
             
             top = (self.swing_last_frames[0]+ self.swing_last_frames[1]+ self.swing_last_frames[2]) / 3
             middle =  (self.swing_last_frames[6]+ self.swing_last_frames[7]+ self.swing_last_frames[8]) / 3
             foot = (self.swing_last_frames[12]+ self.swing_last_frames[13]+ self.swing_last_frames[14]) / 3
-            print(f"top: {top}, middle: {middle}, foot: {foot}")
+            # print(f"top: {top}, middle: {middle}, foot: {foot}")
             if (top < middle and middle < foot and foot - top >= 0.1) :
                 return True
             else :
