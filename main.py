@@ -163,13 +163,11 @@ while cap.isOpened():
         for hand_no, hand_landmarks in enumerate(hands_results.multi_hand_landmarks):
 
             # 手骨格を描画
-            """
             mp_draw.draw_landmarks(
                 frame,
                 hand_landmarks,
                 mp_hands.HAND_CONNECTIONS
             )
-            """
             h, w, _ = frame.shape
 
             # 手は21個のランドマークを持つ

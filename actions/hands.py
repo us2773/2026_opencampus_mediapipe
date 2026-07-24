@@ -11,6 +11,14 @@ def is_grab(hand_landmarks):
 
 def is_kamehameha(first_hand, second_hand):
     first_wrist, second_wrist = first_hand.landmark[0], second_hand.landmark[0]
-    return (distance(first_wrist, second_wrist) < 0.05 and
-            abs(first_wrist.x - second_wrist.x) < 0.1 and
-            abs(first_hand.landmark[12].x - second_hand.landmark[12].x) < 0.1)
+    middle_fingers_extended = (
+        distance(first_wrist, first_hand.landmark[12]) > 0.10
+        and distance(second_wrist, second_hand.landmark[12]) > 0.10
+    )
+
+    return (
+        distance(first_wrist, second_wrist) < 0.05
+        and abs(first_wrist.x - second_wrist.x) < 0.1
+        and abs(first_hand.landmark[12].x - second_hand.landmark[12].x) < 0.1
+        and middle_fingers_extended
+    )
