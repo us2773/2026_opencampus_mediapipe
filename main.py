@@ -77,7 +77,7 @@ while cap.isOpened():
         break
 
     # 左右反転（鏡表示）
-    # frame = cv2.flip(frame, 1)
+    frame = cv2.flip(frame, 1)
 
     # OpenCV(BGR) → MediaPipe(RGB)へ変換
     rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -126,6 +126,12 @@ while cap.isOpened():
             
         if action.judge_swing(all_landmarks[-1]) :
             action.change_message("swing")
+
+        if action.judge_uppercut(all_landmarks[-1]) :
+            action.change_message("upper")
+
+        if action.judge_clap(all_landmarks[-1]) :
+            action.change_message("clap")
             
         if action.check_sitting(all_landmarks[-1]) :
             action.change_message("sit")
@@ -180,11 +186,6 @@ while cap.isOpened():
 
                     if action.judge_grab(hand1) or action.judge_grab(hand2):
                         action.change_message("grab")
-                    if action.judge_crap(hand1, hand2) :
-                        action.change_message("clap")
-
-                        # print("crap")
-
                     if action.is_kamehameha(hand1, hand2) :
                         print("kamehameha")
                         action.change_message("kamehameha")
@@ -196,7 +197,7 @@ while cap.isOpened():
     # print(action.message)
     action.reset_message()
 
-    _, buffer = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 60])
+    buffer = client.encode_video_for_udp(frame)
     video_sender.send_video(buffer)
                 
     # 結果を表示
