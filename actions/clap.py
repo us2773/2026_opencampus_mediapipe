@@ -79,7 +79,7 @@ class ClapDetector:
         )
 
     def _normalized_palm_distance(self, landmarks):
-        shoulder_width = distance(landmarks[11], landmarks[12])
+        shoulder_width = distance([landmarks[11].x, landmarks[11].y], [landmarks[12].x, landmarks[12].y])
         if shoulder_width == 0:
             return None
         left_palm = self._palm_center(landmarks, (15, 17, 19, 21))
