@@ -126,6 +126,9 @@ while cap.isOpened():
             
         if action.judge_swing(all_landmarks[-1]) :
             action.change_message("swing")
+
+        if action.judge_uppercut(all_landmarks[-1]) :
+            action.change_message("upper")
             
         if action.check_sitting(all_landmarks[-1]) :
             action.change_message("sit")

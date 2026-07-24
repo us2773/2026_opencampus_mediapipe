@@ -8,12 +8,14 @@ from actions.commands import ACTION_NAMES
 from actions.hold import HoldDetector
 from actions.jump import JumpDetector
 from actions.swing import SwingDetector
+from actions.uppercut import UppercutDetector
 
 
 class action:
     def __init__(self):
         self._jump = JumpDetector()
         self._swing = SwingDetector()
+        self._uppercut = UppercutDetector()
         self._tpose = HoldDetector(duration=1)
         self._surprise = HoldDetector(duration=1)
         self._kamehameha = HoldDetector(duration=3)
@@ -46,6 +48,7 @@ class action:
 
     def check_jumping(self, landmarks): return self._jump.detect(landmarks)
     def judge_swing(self, landmarks): return self._swing.detect(landmarks)
+    def judge_uppercut(self, landmarks): return self._uppercut.detect(landmarks)
     def check_sitting(self, landmarks): return pose.is_sitting(landmarks)
     def check_tpose(self, landmarks): return pose.is_tpose(landmarks)
     def is_tpose(self, landmarks): return self._tpose.update(self.check_tpose(landmarks))
