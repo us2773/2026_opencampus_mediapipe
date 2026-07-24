@@ -6,7 +6,9 @@ class SwingDetector:
         self.frames = deque(maxlen=15)
 
     def detect(self, landmarks):
-        self.frames.append((landmarks[15][1] + landmarks[16][1]) / 2)
+        left_wrist = landmarks[15].y
+        right_wrist = landmarks[16].y
+        self.frames.append((left_wrist + right_wrist) / 2)
         if len(self.frames) < self.frames.maxlen:
             return False
         frames = list(self.frames)

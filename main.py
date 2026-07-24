@@ -104,27 +104,39 @@ while cap.isOpened():
 
                 # 画像サイズ取得
                 h, w, _ = frame.shape
-
+                
                 x = lm.x
                 y = lm.y
-
+                """                
+                if x < 0 :
+                    x = 0
+                    y = 0
+                if x > 1 :
+                    x = 1
+                    y = 1
+                if y < 0 :
+                    x = 0
+                    y = 0
+                if y > 1 :
+                    x = 1
+                    y = 1              
+"""
                 # ランドマーク番号と座標を表示
             else :
                 x = None
                 y = None
+                
 
-            #landmarks.append(x)
-            #landmarks.append(y)
             landmarks.append([x,y])
         all_landmarks.append(landmarks) 
-
-        print_idx = 31
-        p = all_landmarks[-1][print_idx]
-            
-        if action.check_jumping(all_landmarks[-1]) :
+        
+        
+        last_landmarks = pose_results.pose_landmarks.landmark
+        print(type(last_landmarks))
+        if action.check_jumping(last_landmarks) :
             action.change_message("jump")
             
-        if action.judge_swing(all_landmarks[-1]) :
+        if action.judge_swing(last_landmarks) :
             action.change_message("swing")
 
         if action.judge_uppercut(all_landmarks[-1]) :
@@ -133,26 +145,26 @@ while cap.isOpened():
         if action.judge_clap(all_landmarks[-1]) :
             action.change_message("clap")
             
-        if action.check_sitting(all_landmarks[-1]) :
+        if action.check_sitting(last_landmarks) :
             action.change_message("sit")
         
-        if action.judge_closs_arms(all_landmarks[-1]) :
+        if action.judge_closs_arms(last_landmarks) :
             action.change_message("closs")
         
-        if action.is_tpose(pose_results.pose_landmarks.landmark) :
+        if action.is_tpose(last_landmarks) :
             action.change_message("tpose")
             
-        if action.check_tpose(pose_results.pose_landmarks.landmark) :
+        if action.check_tpose(last_landmarks) :
             action.change_message("tpose_continue")
 
         #追加
-        if action.is_surprise(pose_results.pose_landmarks.landmark):
+        if action.is_surprise(last_landmarks):
             action.change_message("surprise")
 
-        if action.check_surprise(pose_results.pose_landmarks.landmark):
+        if action.check_surprise(last_landmarks):
             action.change_message("surprise_continue")
 
-        if action.check_kick(pose_results.pose_landmarks.landmark):
+        if action.check_kick(last_landmarks):
             action.change_message("Kick")
 
     # Hands（手骨格）

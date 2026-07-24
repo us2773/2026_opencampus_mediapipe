@@ -6,7 +6,8 @@ class JumpDetector:
         self.frames = deque(maxlen=25)
 
     def detect(self, landmarks):
-        self.frames.append(landmarks[23][1])
+        left_hip = landmarks[23].y
+        self.frames.append(left_hip)
         if len(self.frames) < self.frames.maxlen:
             return False
         frames = list(self.frames)
