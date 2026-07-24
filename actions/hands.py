@@ -9,10 +9,6 @@ def is_grab(hand_landmarks):
     return all(distance(hand_landmarks.landmark[tip], wrist) < distance(hand_landmarks.landmark[base], wrist) for base, tip in pairs)
 
 
-def is_clap(first_hand, second_hand):
-    return distance(first_hand.landmark[13], second_hand.landmark[13]) < 0.05
-
-
 def is_kamehameha(first_hand, second_hand):
     first_wrist, second_wrist = first_hand.landmark[0], second_hand.landmark[0]
     return (distance(first_wrist, second_wrist) < 0.05 and

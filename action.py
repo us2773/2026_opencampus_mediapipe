@@ -4,6 +4,7 @@
 """
 
 from actions import geometry, hands, pose
+from actions.clap import ClapDetector
 from actions.commands import ACTION_NAMES
 from actions.hold import HoldDetector
 from actions.jump import JumpDetector
@@ -16,6 +17,7 @@ class action:
         self._jump = JumpDetector()
         self._swing = SwingDetector()
         self._uppercut = UppercutDetector()
+        self._clap = ClapDetector()
         self._tpose = HoldDetector(duration=1)
         self._surprise = HoldDetector(duration=1)
         self._kamehameha = HoldDetector(duration=3)
@@ -49,6 +51,7 @@ class action:
     def check_jumping(self, landmarks): return self._jump.detect(landmarks)
     def judge_swing(self, landmarks): return self._swing.detect(landmarks)
     def judge_uppercut(self, landmarks): return self._uppercut.detect(landmarks)
+    def judge_clap(self, landmarks): return self._clap.detect(landmarks)
     def check_sitting(self, landmarks): return pose.is_sitting(landmarks)
     def check_tpose(self, landmarks): return pose.is_tpose(landmarks)
     def is_tpose(self, landmarks): return self._tpose.update(self.check_tpose(landmarks))
@@ -57,7 +60,6 @@ class action:
     def check_kick(self, landmarks): return pose.is_kick(landmarks)
     def judge_closs_arms(self, landmarks): return pose.is_crossed_arms(landmarks)
     def judge_grab(self, hand): return hands.is_grab(hand)
-    def judge_crap(self, first_hand, second_hand): return hands.is_clap(first_hand, second_hand)
     def judge_kamehameha(self, first_hand, second_hand): return hands.is_kamehameha(first_hand, second_hand)
     def is_kamehameha(self, first_hand, second_hand): return self._kamehameha.update(self.judge_kamehameha(first_hand, second_hand))
     def calc_angle(self, first, vertex, third): return geometry.angle(first, vertex, third)

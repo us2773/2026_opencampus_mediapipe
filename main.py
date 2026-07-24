@@ -129,6 +129,9 @@ while cap.isOpened():
 
         if action.judge_uppercut(all_landmarks[-1]) :
             action.change_message("upper")
+
+        if action.judge_clap(all_landmarks[-1]) :
+            action.change_message("clap")
             
         if action.check_sitting(all_landmarks[-1]) :
             action.change_message("sit")
@@ -183,11 +186,6 @@ while cap.isOpened():
 
                     if action.judge_grab(hand1) or action.judge_grab(hand2):
                         action.change_message("grab")
-                    if action.judge_crap(hand1, hand2) :
-                        action.change_message("clap")
-
-                        # print("crap")
-
                     if action.is_kamehameha(hand1, hand2) :
                         print("kamehameha")
                         action.change_message("kamehameha")
