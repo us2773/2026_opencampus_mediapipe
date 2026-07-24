@@ -107,20 +107,7 @@ while cap.isOpened():
                 
                 x = lm.x
                 y = lm.y
-                """                
-                if x < 0 :
-                    x = 0
-                    y = 0
-                if x > 1 :
-                    x = 1
-                    y = 1
-                if y < 0 :
-                    x = 0
-                    y = 0
-                if y > 1 :
-                    x = 1
-                    y = 1              
-"""
+
                 # ランドマーク番号と座標を表示
             else :
                 x = None
@@ -174,13 +161,11 @@ while cap.isOpened():
         for hand_no, hand_landmarks in enumerate(hands_results.multi_hand_landmarks):
 
             # 手骨格を描画
-            """
             mp_draw.draw_landmarks(
                 frame,
                 hand_landmarks,
                 mp_hands.HAND_CONNECTIONS
             )
-            """
             h, w, _ = frame.shape
 
             # 手は21個のランドマークを持つ
