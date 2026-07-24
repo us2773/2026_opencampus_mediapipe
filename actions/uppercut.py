@@ -21,8 +21,12 @@ class UppercutDetector:
         if shoulder_width == 0:
             return False
 
-        self._append("left", landmarks[15], landmarks[11], shoulder_width)
-        self._append("right", landmarks[16], landmarks[12], shoulder_width)
+        self._append(
+            "left", landmarks[15], landmarks[11], landmarks[11], landmarks[12], shoulder_width
+        )
+        self._append(
+            "right", landmarks[16], landmarks[12], landmarks[11], landmarks[12], shoulder_width
+        )
 
         now = time.monotonic()
         if now - self._last_detected_at < self._cooldown_seconds:
@@ -35,8 +39,10 @@ class UppercutDetector:
                 return True
         return False
 
-    def _append(self, side, wrist, shoulder, shoulder_width):
-        self._frames[side].append((wrist[0], wrist[1], shoulder[1], shoulder_width))
+    def _append(self, side, wrist, shoulder, left_shoulder, right_shoulder, shoulder_width):
+        self._frames[side].append(
+            (wrist[0], wrist[1], shoulder[1], left_shoulder[0], right_shoulder[0], shoulder_width)
+        )
 
     @staticmethod
     def _is_uppercut(frames):
@@ -57,9 +63,14 @@ class UppercutDetector:
         # 2. 肩より下で始まり、肩の高さまで到達している。
         starts_below_shoulder = start_wrist_y > start_shoulder_y
         ends_near_or_above_shoulder = end_wrist_y <= end_shoulder_y + shoulder_width * 0.1
-        # 4. 横方向の大きな移動を除外し、スイングと区別する。
-        x_values = [sample[0] for sample in samples]
-        stays_near_vertical = max(x_values) - min(x_values) <= shoulder_width * 0.5
+        # 4. 肩の高さを通過する地点で、手首が左右の肩の間にある。
+        shoulder_level_sample = min(samples, key=lambda sample: abs(sample[1] - sample[2]))
+        left_shoulder_x, right_shoulder_x = shoulder_level_sample[3:5]
+        horizontal_margin = shoulder_width * 0.1
+        passes_between_shoulders = (
+            min(left_shoulder_x, right_shoulder_x) - horizontal_margin <= shoulder_level_sample[0] <=
+            max(left_shoulder_x, right_shoulder_x) + horizontal_margin
+        )
 
         return (rises_enough and starts_below_shoulder and
-                ends_near_or_above_shoulder and stays_near_vertical)
+                ends_near_or_above_shoulder and passes_between_shoulders)
