@@ -196,7 +196,7 @@ while cap.isOpened():
     # print(action.message)
     action.reset_message()
 
-    _, buffer = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 60])
+    buffer = client.encode_video_for_udp(frame)
     video_sender.send_video(buffer)
                 
     # 結果を表示
