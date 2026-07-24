@@ -183,10 +183,10 @@ while cap.isOpened():
                     if action.judge_grab(hand1) or action.judge_grab(hand2):
                         action.change_message("grab")
                     if action.is_kamehameha(hand1, hand2) :
-                        action.change_message("kamehameha")
+                        action.change_message("kamehameha_continue")
             
                     if action.judge_kamehameha(hand1, hand2) :
-                        action.change_message("kamehameha_continue")
+                        action.change_message("kamehameha")
     send_message(action.message)
     # print(action.message)
     action.reset_message()
