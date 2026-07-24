@@ -77,7 +77,7 @@ while cap.isOpened():
         break
 
     # 左右反転（鏡表示）
-    # frame = cv2.flip(frame, 1)
+    frame = cv2.flip(frame, 1)
 
     # OpenCV(BGR) → MediaPipe(RGB)へ変換
     rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
