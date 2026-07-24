@@ -2,6 +2,7 @@
 
 from collections import deque
 import time
+from .check_visibility import check_visibility
 
 
 class UppercutDetector:
@@ -17,27 +18,30 @@ class UppercutDetector:
 
     def detect(self, landmarks):
         """左右どちらかがアッパーの軌跡ならTrueを返す。"""
-        shoulder_width = abs(landmarks[12][0] - landmarks[11][0])
-        if shoulder_width == 0:
+        if not check_visibility([landmarks[11], landmarks[12], landmarks[15], landmarks[16]]) :
             return False
+        else :
+            shoulder_width = abs(landmarks[12].x - landmarks[11].x)
+            if shoulder_width == 0:
+                return False
+            
+            self._append(
+                "left", [landmarks[15].x, landmarks[15].y], [landmarks[11].x, landmarks[11].y], [landmarks[11].x, landmarks[11].y], [landmarks[12].x, landmarks[12].y], shoulder_width
+            )
+            self._append(
+                "right", [landmarks[16].x, landmarks[16].y], [landmarks[12].x, landmarks[12].y], [landmarks[11].x, landmarks[11].y], [landmarks[12].x, landmarks[12].y], shoulder_width
+            )
 
-        self._append(
-            "left", landmarks[15], landmarks[11], landmarks[11], landmarks[12], shoulder_width
-        )
-        self._append(
-            "right", landmarks[16], landmarks[12], landmarks[11], landmarks[12], shoulder_width
-        )
+            now = time.monotonic()
+            if now - self._last_detected_at < self._cooldown_seconds:
+                return False
 
-        now = time.monotonic()
-        if now - self._last_detected_at < self._cooldown_seconds:
+            for side in self._frames:
+                if self._is_uppercut(self._frames[side]):
+                    self._last_detected_at = now
+                    self._frames[side].clear()
+                    return True
             return False
-
-        for side in self._frames:
-            if self._is_uppercut(self._frames[side]):
-                self._last_detected_at = now
-                self._frames[side].clear()
-                return True
-        return False
 
     def _append(self, side, wrist, shoulder, left_shoulder, right_shoulder, shoulder_width):
         self._frames[side].append(

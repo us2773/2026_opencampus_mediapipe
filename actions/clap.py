@@ -3,7 +3,7 @@
 import time
 
 from .geometry import distance, point_xy
-
+from .check_visibility import check_visibility
 
 class ClapDetector:
     """手のひらが近づき、接触位置で止まったときに拍手を検出する。"""
@@ -29,46 +29,49 @@ class ClapDetector:
 
     def detect(self, landmarks):
         """拍手の接触時に一度だけTrueを返す。"""
-        now = self._clock()
-        current_distance = self._normalized_palm_distance(landmarks)
-        if current_distance is None:
-            self._reset_motion()
+        if not check_visibility([landmarks[11], landmarks[12]]) :
             return False
+        else :
+            now = self._clock()
+            current_distance = self._normalized_palm_distance(landmarks)
+            if current_distance is None:
+                self._reset_motion()
+                return False
 
-        if self._previous_distance is None:
+            if self._previous_distance is None:
+                self._store(current_distance, now)
+                return False
+
+            elapsed = now - self._previous_time
+            if elapsed <= 0:
+                self._store(current_distance, now)
+                return False
+
+            closing_speed = (self._previous_distance - current_distance) / elapsed
             self._store(current_distance, now)
+
+            if now < self._cooldown_until:
+                return False
+
+            # 接近状態のあと、十分近い位置で速度が止まった瞬間を接触とみなす。
+            if (self._approach_frames >= 2 and
+                    current_distance <= self._contact_distance and
+                    abs(closing_speed) <= self._stop_speed):
+                self._cooldown_until = now + self._cooldown_seconds
+                self._reset_motion()
+                return True
+
+            if closing_speed >= self._approach_speed:
+                self._approach_frames += 1
+                if self._approach_started_at is None:
+                    self._approach_started_at = now
+            elif closing_speed < 0:
+                self._reset_motion()
+
+            if (self._approach_started_at is not None and
+                    now - self._approach_started_at > 0.75):
+                self._reset_motion()
             return False
-
-        elapsed = now - self._previous_time
-        if elapsed <= 0:
-            self._store(current_distance, now)
-            return False
-
-        closing_speed = (self._previous_distance - current_distance) / elapsed
-        self._store(current_distance, now)
-
-        if now < self._cooldown_until:
-            return False
-
-        # 接近状態のあと、十分近い位置で速度が止まった瞬間を接触とみなす。
-        if (self._approach_frames >= 2 and
-                current_distance <= self._contact_distance and
-                abs(closing_speed) <= self._stop_speed):
-            self._cooldown_until = now + self._cooldown_seconds
-            self._reset_motion()
-            return True
-
-        if closing_speed >= self._approach_speed:
-            self._approach_frames += 1
-            if self._approach_started_at is None:
-                self._approach_started_at = now
-        elif closing_speed < 0:
-            self._reset_motion()
-
-        if (self._approach_started_at is not None and
-                now - self._approach_started_at > 0.75):
-            self._reset_motion()
-        return False
 
     @staticmethod
     def _palm_center(landmarks, indices):
@@ -79,7 +82,7 @@ class ClapDetector:
         )
 
     def _normalized_palm_distance(self, landmarks):
-        shoulder_width = distance(landmarks[11], landmarks[12])
+        shoulder_width = distance([landmarks[11].x, landmarks[11].y], [landmarks[12].x, landmarks[12].y])
         if shoulder_width == 0:
             return None
         left_palm = self._palm_center(landmarks, (15, 17, 19, 21))

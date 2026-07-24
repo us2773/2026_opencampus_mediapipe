@@ -104,7 +104,7 @@ while cap.isOpened():
 
                 # 画像サイズ取得
                 h, w, _ = frame.shape
-
+                
                 x = lm.x
                 y = lm.y
 
@@ -112,47 +112,45 @@ while cap.isOpened():
             else :
                 x = None
                 y = None
+                
 
-            #landmarks.append(x)
-            #landmarks.append(y)
             landmarks.append([x,y])
         all_landmarks.append(landmarks) 
-
-        print_idx = 31
-        p = all_landmarks[-1][print_idx]
-            
-        if action.check_jumping(all_landmarks[-1]) :
+        
+        
+        last_landmarks = pose_results.pose_landmarks.landmark
+        if action.check_jumping(last_landmarks) :
             action.change_message("jump")
             
-        if action.judge_swing(all_landmarks[-1]) :
+        if action.judge_swing(last_landmarks) :
             action.change_message("swing")
 
-        if action.judge_uppercut(all_landmarks[-1]) :
+        if action.judge_uppercut(last_landmarks) :
             action.change_message("upper")
 
-        if action.judge_clap(all_landmarks[-1]) :
+        if action.judge_clap(last_landmarks) :
             action.change_message("clap")
             
-        if action.check_sitting(all_landmarks[-1]) :
+        if action.check_sitting(last_landmarks) :
             action.change_message("sit")
         
-        if action.judge_closs_arms(all_landmarks[-1]) :
+        if action.judge_closs_arms(last_landmarks) :
             action.change_message("closs")
         
-        if action.is_tpose(pose_results.pose_landmarks.landmark) :
+        if action.is_tpose(last_landmarks) :
             action.change_message("tpose")
             
-        if action.check_tpose(pose_results.pose_landmarks.landmark) :
+        if action.check_tpose(last_landmarks) :
             action.change_message("tpose_continue")
 
         #追加
-        if action.is_surprise(pose_results.pose_landmarks.landmark):
+        if action.is_surprise(last_landmarks):
             action.change_message("surprise")
 
-        if action.check_surprise(pose_results.pose_landmarks.landmark):
+        if action.check_surprise(last_landmarks):
             action.change_message("surprise_continue")
 
-        if action.check_kick(pose_results.pose_landmarks.landmark):
+        if action.check_kick(last_landmarks):
             action.change_message("Kick")
 
     # Hands（手骨格）
@@ -163,13 +161,11 @@ while cap.isOpened():
         for hand_no, hand_landmarks in enumerate(hands_results.multi_hand_landmarks):
 
             # 手骨格を描画
-            """
             mp_draw.draw_landmarks(
                 frame,
                 hand_landmarks,
                 mp_hands.HAND_CONNECTIONS
             )
-            """
             h, w, _ = frame.shape
 
             # 手は21個のランドマークを持つ
@@ -187,12 +183,10 @@ while cap.isOpened():
                     if action.judge_grab(hand1) or action.judge_grab(hand2):
                         action.change_message("grab")
                     if action.is_kamehameha(hand1, hand2) :
-                        print("kamehameha")
-                        action.change_message("kamehameha")
+                        action.change_message("kamehameha_continue")
             
                     if action.judge_kamehameha(hand1, hand2) :
-                        print("kamehameha_continue")
-                        action.change_message("kamehameha_continue")
+                        action.change_message("kamehameha")
     send_message(action.message)
     # print(action.message)
     action.reset_message()
