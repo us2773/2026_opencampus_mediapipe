@@ -7,6 +7,7 @@ class JumpDetector:
 
     def detect(self, landmarks):
         if not check_visibility([landmarks[23]]) :
+            self.frames.clear()
             return False
         else :
             left_hip = landmarks[23].y

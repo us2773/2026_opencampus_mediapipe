@@ -7,6 +7,7 @@ class SwingDetector:
 
     def detect(self, landmarks):
         if not check_visibility([landmarks[15], landmarks[16]]) :
+            self.frames.clear()
             return False
         else :
             left_wrist = landmarks[15].y

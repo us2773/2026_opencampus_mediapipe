@@ -30,6 +30,7 @@ class ClapDetector:
     def detect(self, landmarks):
         """拍手の接触時に一度だけTrueを返す。"""
         if not check_visibility([landmarks[11], landmarks[12]]) :
+            self._reset_motion()
             return False
         else :
             now = self._clock()

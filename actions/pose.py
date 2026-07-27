@@ -65,7 +65,7 @@ def is_kick(landmarks):
 
 
 def is_crossed_arms(landmarks):
-    if not check_visibility(landmarks[13:16]) :
+    if not check_visibility(landmarks[13:17]) :
             return False
     else :
         left_elbow = [landmarks[13].x, landmarks[13].y]

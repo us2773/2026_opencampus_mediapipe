@@ -19,6 +19,8 @@ class UppercutDetector:
     def detect(self, landmarks):
         """左右どちらかがアッパーの軌跡ならTrueを返す。"""
         if not check_visibility([landmarks[11], landmarks[12], landmarks[15], landmarks[16]]) :
+            for frames in self._frames.values():
+                frames.clear()
             return False
         else :
             shoulder_width = abs(landmarks[12].x - landmarks[11].x)
