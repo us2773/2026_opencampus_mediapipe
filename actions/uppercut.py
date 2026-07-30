@@ -46,6 +46,7 @@ class UppercutDetector:
 
     @staticmethod
     def _is_uppercut(frames):
+        # frames = self._frames[side]
         if len(frames) < frames.maxlen:
             return False
 
@@ -56,7 +57,7 @@ class UppercutDetector:
         end_wrist_y = sum(sample[1] for sample in end) / len(end)
         start_shoulder_y = sum(sample[2] for sample in start) / len(start)
         end_shoulder_y = sum(sample[2] for sample in end) / len(end)
-        shoulder_width = sum(sample[3] for sample in samples) / len(samples)
+        shoulder_width = sum(sample[5] for sample in samples) / len(samples)
 
         # 1. 下から上へ、肩幅の半分以上だけ上昇している。
         rises_enough = start_wrist_y - end_wrist_y >= shoulder_width * 0.5
