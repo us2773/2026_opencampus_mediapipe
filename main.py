@@ -18,7 +18,7 @@ mp_draw = mp.solutions.drawing_utils # 骨格描画用
 
 pose = mp_pose.Pose(
     static_image_mode=False,         # 動画モード（追跡あり）
-    model_complexity=2,              # モデルの複雑さ（0:軽量,1:標準,2:高精度）
+    model_complexity=1,              # モデルの複雑さ（0:軽量,1:標準,2:高精度）
     smooth_landmarks=True,           # 座標を平滑化してブレを減らす
     min_detection_confidence=0.5,    # 検出信頼度の閾値
     min_tracking_confidence=0.5      # 追跡信頼度の閾値
@@ -37,6 +37,24 @@ hands = mp_hands.Hands(
 # 0はPC内蔵カメラを表す
 
 cap = cv2.VideoCapture(0)
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+
+fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+
+# 現在時刻を取得
+dt = datetime.now()
+
+# datetime型から文字列に変換
+datetime_str = dt.strftime("%Y%m%d%H%M%S")
+writer = cv2.VideoWriter(
+    f"output_{datetime_str}.mp4",
+    fourcc,
+    10,
+    (1280, 720)
+)
+
 all_landmarks = []
 header = []
 
@@ -196,6 +214,7 @@ while cap.isOpened():
                 
     # 結果を表示
     cv2.imshow("Pose + Hands", frame)
+    writer.write(frame)
     # qキーで終了
     
     if cv2.waitKey(1) & 0xFF == ord("q"):
@@ -206,6 +225,8 @@ while cap.isOpened():
 
 # カメラを解放
 cap.release()
+
+writer.release()
 
 # ウィンドウを閉じる
 cv2.destroyAllWindows()
