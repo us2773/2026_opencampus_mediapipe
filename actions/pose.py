@@ -60,14 +60,15 @@ def is_kick(landmarks):
     left_knee_y = landmarks[25].y
     right_knee_y = landmarks[26].y
 
+    harf_left = (left_ankle_y - left_knee_y)/2 + left_knee_y
+    harf_right = (right_ankle_y - right_knee_y)/2 + right_knee_y
+
     if not check_visibility([left_hip, right_hip, 
                             left_knee, right_knee, 
                             left_ankle, right_ankle]) :
             return False
     else :
-        return ((angle(left_hip, left_knee, left_ankle) > 130 and distance(left_hip, left_ankle) > distance(right_hip, left_ankle) and left_ankle_y <= right_knee_y)  or
-            (angle(right_hip, right_knee, right_ankle) > 130 and distance(right_hip, right_ankle) > distance(left_hip, right_ankle) and right_ankle_y <= left_knee_y))
-
+        return (angle(left_hip, left_knee, left_ankle) > 100 and (distance(left_hip, left_ankle) > distance(right_hip, left_ankle)) and left_ankle_y <= harf_right)  or (angle(right_hip, right_knee, right_ankle) > 100 and (distance(right_hip, right_ankle) > distance(left_hip, right_ankle)) and right_ankle_y <= harf_left)
 
 def is_crossed_arms(landmarks):
     if not check_visibility(landmarks[13:17]) :
