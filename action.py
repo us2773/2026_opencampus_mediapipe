@@ -22,6 +22,7 @@ class action:
         self._surprise = HoldDetector(duration=1)
         self._kamehameha = HoldDetector(duration=3)
         self._message = dict.fromkeys(ACTION_NAMES, False)
+        self._closs = HoldDetector(duration=1)
 
     @property
     def jump_last_frames(self):
@@ -59,6 +60,7 @@ class action:
     def is_surprise(self, landmarks): return self._surprise.update(self.check_surprise(landmarks))
     def check_kick(self, landmarks): return pose.is_kick(landmarks)
     def judge_closs_arms(self, landmarks): return pose.is_crossed_arms(landmarks)
+    def is_closs_arms(self, landmarks): return self._closs.update(self.judge_closs_arms(landmarks))
     def judge_grab(self, hand): return hands.is_grab(hand)
     def judge_kamehameha(self, first_hand, second_hand, shoulder_width): return hands.is_kamehameha(first_hand, second_hand, shoulder_width)
     def is_kamehameha(self, first_hand, second_hand, shoulder_width): return self._kamehameha.update(self.judge_kamehameha(first_hand, second_hand, shoulder_width))

@@ -2,5 +2,5 @@
 
 ACTION_NAMES = (
     "surprise", "surprise_continue", "Kick", "jump", "sit", "clap", "grab",
-    "tpose", "tpose_continue", "kamehameha", "kamehameha_continue", "swing", "upper", "closs",
+    "tpose", "tpose_continue", "kamehameha", "kamehameha_continue", "swing", "upper", "closs","closs_continue"
 )

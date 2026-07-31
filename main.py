@@ -137,19 +137,20 @@ while cap.isOpened():
         
         if action.judge_closs_arms(last_landmarks) :
             action.change_message("closs")
-        
+        if action.is_closs_arms(last_landmarks): 
+            action.change_message("closs_continue")
         if action.is_tpose(last_landmarks) :
-            action.change_message("tpose")
+            action.change_message("tpose_continue")
             
         if action.check_tpose(last_landmarks) :
-            action.change_message("tpose_continue")
+            action.change_message("tpose")
 
         #追加
         if action.is_surprise(last_landmarks):
-            action.change_message("surprise")
+            action.change_message("surprise_continue")
 
         if action.check_surprise(last_landmarks):
-            action.change_message("surprise_continue")
+            action.change_message("surprise")
 
         if action.check_kick(last_landmarks):
             action.change_message("Kick")
