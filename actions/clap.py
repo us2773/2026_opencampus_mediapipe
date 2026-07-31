@@ -3,7 +3,7 @@
 import time
 
 from .check_visibility import check_visibility
-from .geometry import distance, point_xy
+from .geometry import distance, point_xy, get_shoulder_width
 
 
 class ClapDetector:
@@ -32,6 +32,7 @@ class ClapDetector:
         self._last_approach_at = None
         self._has_been_close = False
         self._cooldown_until = 0.0
+        self.shoulder_width = 0
 
     def detect(self, landmarks):
         """拍手の接触時に一度だけTrueを返す。"""
@@ -39,6 +40,7 @@ class ClapDetector:
             self._reset_motion()
             return False
 
+        self.shoulder_width = get_shoulder_width(landmarks)
         now = self._clock()
         current_distance = self._normalized_palm_distance(landmarks)
         if current_distance is None:

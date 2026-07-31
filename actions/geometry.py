@@ -61,3 +61,6 @@ def segment_distance(first_start, first_end, second_start, second_end):
         point_segment_distance(second_start, first_start, first_end),
         point_segment_distance(second_end, first_start, first_end),
     )
+
+def get_shoulder_width(landmarks) :
+    return abs(landmarks[12].x - landmarks[11].x)

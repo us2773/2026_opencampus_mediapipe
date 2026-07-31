@@ -8,6 +8,7 @@ from datetime import datetime
 import action
 import client
 import csv
+from actions.geometry import get_shoulder_width
 
 mp_pose = mp.solutions.pose          # Pose（全身骨格検出）
 mp_hands = mp.solutions.hands        # Hands（手骨格検出）
@@ -152,6 +153,7 @@ while cap.isOpened():
 
         if action.check_kick(last_landmarks):
             action.change_message("Kick")
+        shoulder_width = get_shoulder_width(last_landmarks)
 
     # Hands（手骨格）
     
@@ -174,7 +176,7 @@ while cap.isOpened():
                 x = lm.x
                 y = lm.y
                 # ランドマーク番号と座標を表示
-
+            
             if hands_results.multi_hand_landmarks != None:
                 if len(hands_results.multi_hand_landmarks) == 2 :
                     hand1 = hands_results.multi_hand_landmarks[0]
@@ -182,10 +184,11 @@ while cap.isOpened():
 
                     if action.judge_grab(hand1) or action.judge_grab(hand2):
                         action.change_message("grab")
-                    if action.is_kamehameha(hand1, hand2) :
+                    
+                    if action.is_kamehameha(hand1, hand2, shoulder_width) :
                         action.change_message("kamehameha_continue")
             
-                    if action.judge_kamehameha(hand1, hand2) :
+                    if action.judge_kamehameha(hand1, hand2, shoulder_width) :
                         action.change_message("kamehameha")
     send_message(action.message)
     # print(action.message)

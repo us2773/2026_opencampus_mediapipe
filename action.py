@@ -60,8 +60,8 @@ class action:
     def check_kick(self, landmarks): return pose.is_kick(landmarks)
     def judge_closs_arms(self, landmarks): return pose.is_crossed_arms(landmarks)
     def judge_grab(self, hand): return hands.is_grab(hand)
-    def judge_kamehameha(self, first_hand, second_hand): return hands.is_kamehameha(first_hand, second_hand)
-    def is_kamehameha(self, first_hand, second_hand): return self._kamehameha.update(self.judge_kamehameha(first_hand, second_hand))
+    def judge_kamehameha(self, first_hand, second_hand, shoulder_width): return hands.is_kamehameha(first_hand, second_hand, shoulder_width)
+    def is_kamehameha(self, first_hand, second_hand, shoulder_width): return self._kamehameha.update(self.judge_kamehameha(first_hand, second_hand, shoulder_width))
     def calc_angle(self, first, vertex, third): return geometry.angle(first, vertex, third)
     def distance(self, first, second): return geometry.distance(first, second)
 
