@@ -20,8 +20,8 @@ class action:
         self._clap = ClapDetector()
         self._tpose = HoldDetector(duration=1)
         self._surprise = HoldDetector(duration=1)
-        self._kamehameha = HoldDetector(duration=3)
-        self._continue_sit = HoldDetector(duration=3)
+        self._kamehameha = HoldDetector(duration=1)
+        self._continue_sit = HoldDetector(duration=1)
         self._message = dict.fromkeys(ACTION_NAMES, False)
         self._closs = HoldDetector(duration=1)
 
