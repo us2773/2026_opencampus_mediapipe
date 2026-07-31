@@ -30,6 +30,7 @@ class JumpDetector:
             is_jump_l = self.check_jump_waveform(self.frames_left, th)
             is_jump_r = self.check_jump_waveform(self.frames_right, th)
             is_const_camera_distance = self.isconst_camera_distance(self.frames_z)
+            """
             print(f"left_ankle: {left_ankle}")
             print(f"right_ankle: {right_ankle}")
             print(f"th: {th}")
@@ -37,7 +38,7 @@ class JumpDetector:
             print(f"is jump left: {is_jump_l}")    
             print(f"is jump right: {is_jump_r}")    
             print(f"is const camera distance: {is_const_camera_distance}")
-            
+            """
             return is_jump_l and is_jump_r and is_const_camera_distance
         
     def check_jump_waveform(self, frames, th) :
