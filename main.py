@@ -134,6 +134,8 @@ while cap.isOpened():
             
         if action.check_sitting(last_landmarks) :
             action.change_message("sit")
+        if action.continue_sit(last_landmarks) :
+            action.change_message("sit_continue")
         
         if action.judge_closs_arms(last_landmarks) :
             action.change_message("closs")

@@ -21,6 +21,7 @@ class action:
         self._tpose = HoldDetector(duration=1)
         self._surprise = HoldDetector(duration=1)
         self._kamehameha = HoldDetector(duration=3)
+        self._continue_sit = HoldDetector(duration=3)
         self._message = dict.fromkeys(ACTION_NAMES, False)
         self._closs = HoldDetector(duration=1)
 
@@ -55,6 +56,7 @@ class action:
     def judge_clap(self, landmarks): return self._clap.detect(landmarks)
     def check_sitting(self, landmarks): return pose.is_sitting(landmarks)
     def check_tpose(self, landmarks): return pose.is_tpose(landmarks)
+    def continue_sit(self, landmarks): return self._continue_sit.update(self.check_sitting(landmarks))
     def is_tpose(self, landmarks): return self._tpose.update(self.check_tpose(landmarks))
     def check_surprise(self, landmarks): return pose.is_surprise(landmarks)
     def is_surprise(self, landmarks): return self._surprise.update(self.check_surprise(landmarks))
