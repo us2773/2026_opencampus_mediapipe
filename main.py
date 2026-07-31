@@ -65,7 +65,7 @@ def send_message(messages: dict) :
         action_sender.send_command("default")
 
 while cap.isOpened():
-    
+    shoulder_width = 0
     now = datetime.now()
     #print("現在時刻:", now) 
     #print("ミリ秒:", now.microsecond // 1000)  # microsecondはマイクロ秒（μs）
