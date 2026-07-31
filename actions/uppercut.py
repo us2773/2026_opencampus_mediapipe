@@ -3,7 +3,7 @@
 from collections import deque
 import time
 from .check_visibility import check_visibility
-
+from .geometry import get_shoulder_width
 
 class UppercutDetector:
     """片手ずつ、下から上への動きを検出する。"""
@@ -23,7 +23,7 @@ class UppercutDetector:
                 frames.clear()
             return False
         else :
-            shoulder_width = abs(landmarks[12].x - landmarks[11].x)
+            shoulder_width = get_shoulder_width(landmarks)
             if shoulder_width == 0:
                 return False
             
@@ -64,19 +64,22 @@ class UppercutDetector:
         start_shoulder_y = sum(sample[2] for sample in start) / len(start)
         end_shoulder_y = sum(sample[2] for sample in end) / len(end)
         shoulder_width = sum(sample[5] for sample in samples) / len(samples)
-
+        
+        th_rise = shoulder_width * 0.5
+        th_shoulder_distance = shoulder_width * 0.1
+        th_horizontal_margin = shoulder_width * 0.1
+        
         # 1. 下から上へ、肩幅の半分以上だけ上昇している。
-        rises_enough = start_wrist_y - end_wrist_y >= shoulder_width * 0.5
+        rises_enough = start_wrist_y - end_wrist_y >= th_rise
         # 2. 肩より下で始まり、肩の高さまで到達している。
         starts_below_shoulder = start_wrist_y > start_shoulder_y
-        ends_near_or_above_shoulder = end_wrist_y <= end_shoulder_y + shoulder_width * 0.1
-        # 4. 肩の高さを通過する地点で、手首が左右の肩の間にある。
+        ends_near_or_above_shoulder = end_wrist_y <= end_shoulder_y + th_shoulder_distance
         shoulder_level_sample = min(samples, key=lambda sample: abs(sample[1] - sample[2]))
         left_shoulder_x, right_shoulder_x = shoulder_level_sample[3:5]
-        horizontal_margin = shoulder_width * 0.1
+        
         passes_between_shoulders = (
-            min(left_shoulder_x, right_shoulder_x) - horizontal_margin <= shoulder_level_sample[0] <=
-            max(left_shoulder_x, right_shoulder_x) + horizontal_margin
+            min(left_shoulder_x, right_shoulder_x) - th_horizontal_margin <= shoulder_level_sample[0] <=
+            max(left_shoulder_x, right_shoulder_x) + th_horizontal_margin
         )
 
         return (rises_enough and starts_below_shoulder and

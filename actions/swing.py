@@ -6,6 +6,7 @@ class SwingDetector:
         self.frames = deque(maxlen=15)
 
     def detect(self, landmarks):
+        th = 0.1
         if not check_visibility([landmarks[15], landmarks[16]]) :
             self.frames.clear()
             return False
@@ -19,4 +20,4 @@ class SwingDetector:
             top = sum(frames[0:3]) / 3
             middle = sum(frames[6:9]) / 3
             bottom = sum(frames[12:15]) / 3
-            return top < middle < bottom and bottom - top >= 0.1
+            return top < middle < bottom and bottom - top >= th
