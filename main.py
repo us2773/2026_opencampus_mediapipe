@@ -61,9 +61,10 @@ def send_message(messages: dict) :
     for key, value in messages.items() :
         if (value) :
             action_sender.send_command(key)
+    """
     if not any(messages.values()) :
         action_sender.send_command("default")
-
+    """
 while cap.isOpened():
     shoulder_width = 0
     now = datetime.now()
@@ -131,26 +132,28 @@ while cap.isOpened():
 
         if action.judge_clap(last_landmarks) :
             action.change_message("clap")
-            
-        if action.check_sitting(last_landmarks) :
-            action.change_message("sit")
         
+        if action.continue_sit(last_landmarks) :
+            action.change_message("sit_continue")
+        """
         if action.judge_closs_arms(last_landmarks) :
             action.change_message("closs")
-        
+        """
+        if action.is_closs_arms(last_landmarks): 
+            action.change_message("closs_continue")
         if action.is_tpose(last_landmarks) :
-            action.change_message("tpose")
-            
-        if action.check_tpose(last_landmarks) :
             action.change_message("tpose_continue")
-
+        """
+        if action.check_tpose(last_landmarks) :
+            action.change_message("tpose")
+        """
         #追加
         if action.is_surprise(last_landmarks):
-            action.change_message("surprise")
-
-        if action.check_surprise(last_landmarks):
             action.change_message("surprise_continue")
-
+        """
+        if action.check_surprise(last_landmarks):
+            action.change_message("surprise")
+        """
         if action.check_kick(last_landmarks):
             action.change_message("Kick")
         shoulder_width = get_shoulder_width(last_landmarks)
