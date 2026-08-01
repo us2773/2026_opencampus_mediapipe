@@ -9,7 +9,7 @@ class HoldDetector:
         self.clock = clock
         self.start_time = None
         self.detected = False
-
+    """#元の関数
     def update(self, condition):
         if not condition:
             self.reset()
@@ -19,6 +19,25 @@ class HoldDetector:
             return False
         self.detected = self.clock() - self.start_time >= self.duration
         return self.detected
+    """
+    #変更した関数
+    def update(self, condition):
+        if not condition:
+            self.reset()
+            return False
+        now = self.clock()
+
+        if self.start_time is None:
+            self.start_time = now
+            return False
+
+        if now - self.start_time >= self.duration:
+            self.start_time = now   # 継続判定をリセット
+            self.detected = True
+            return True
+
+        self.detected = False
+        return False
 
     def reset(self):
         self.start_time = None
