@@ -71,8 +71,11 @@ def is_kick(landmarks):
         return (angle(left_hip, left_knee, left_ankle) > 100 and (distance(left_hip, left_ankle) > distance(right_hip, left_ankle)) and left_ankle_y <= harf_right)  or (angle(right_hip, right_knee, right_ankle) > 100 and (distance(right_hip, right_ankle) > distance(left_hip, right_ankle)) and right_ankle_y <= harf_left)
 
 def is_crossed_arms(landmarks):
+    th_segment_distance = 0.1
+    
+    print(landmarks[14].visibility)
     if not check_visibility(landmarks[13:17]) :
-            return False
+        return False
     else :
         left_elbow = [landmarks[13].x, landmarks[13].y]
         right_elbow = [landmarks[14].x, landmarks[14].y]
@@ -89,4 +92,4 @@ def is_crossed_arms(landmarks):
         
         horizontal = lambda value: abs(value) <= 30 or abs(abs(value) - 180) <= 30
         vertical = lambda value: abs(abs(value) - 90) <= 30
-        return segment_distance(left_elbow, left_wrist, right_elbow, right_wrist) <= 0.1 and ((horizontal(left_angle) and vertical(right_angle)) or (horizontal(right_angle) and vertical(left_angle)))
+        return segment_distance(left_elbow, left_wrist, right_elbow, right_wrist) <= th_segment_distance and ((horizontal(left_angle) and vertical(right_angle)) or (horizontal(right_angle) and vertical(left_angle)))

@@ -108,14 +108,16 @@ while cap.isOpened():
                 
                 x = lm.x
                 y = lm.y
+                v = lm.visibility
 
                 # ランドマーク番号と座標を表示
             else :
                 x = None
                 y = None
+                v = None
                 
 
-            landmarks.append([x,y])
+            landmarks.append([x,y, v])
         all_landmarks.append(landmarks) 
         
         
