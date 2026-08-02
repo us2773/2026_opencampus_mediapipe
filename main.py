@@ -131,18 +131,22 @@ while cap.isOpened():
 
         if action.judge_clap(last_landmarks) :
             action.change_message("clap")
-        
-        if action.continue_sit(last_landmarks) :
-            action.change_message("sit_continue")
-        if action.is_closs_arms(last_landmarks): 
-            action.change_message("closs_continue")
-        if action.is_tpose(last_landmarks) :
-            action.change_message("tpose_continue")
-        #追加
-        if action.is_surprise(last_landmarks):
-            action.change_message("surprise_continue")
+            
         if action.check_kick(last_landmarks):
             action.change_message("Kick")
+            
+        if action.continue_sit(last_landmarks) :
+            action.change_message("sit_continue")
+            
+        if action.is_closs_arms(last_landmarks): 
+            action.change_message("closs_continue")
+            
+        if action.is_tpose(last_landmarks) :
+            action.change_message("tpose_continue")
+            
+        if action.is_surprise(last_landmarks):
+            action.change_message("surprise_continue")
+
         shoulder_width = get_shoulder_width(last_landmarks)
 
     # Hands（手骨格）
@@ -171,10 +175,11 @@ while cap.isOpened():
                 if len(hands_results.multi_hand_landmarks) == 2 :
                     hand1 = hands_results.multi_hand_landmarks[0]
                     hand2 = hands_results.multi_hand_landmarks[1]
-
+                    
+                    """
                     if action.judge_grab(hand1) or action.judge_grab(hand2):
                         action.change_message("grab")
-                    
+                    """
                     if action.is_kamehameha(hand1, hand2, shoulder_width) :
                         action.change_message("kamehameha_continue")
 
