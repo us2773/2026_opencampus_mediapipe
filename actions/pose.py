@@ -72,8 +72,6 @@ def is_kick(landmarks):
 
 def is_crossed_arms(landmarks):
     th_segment_distance = 0.1
-    
-    print(landmarks[14].visibility)
     if not check_visibility(landmarks[13:17]) :
         return False
     else :
