@@ -64,8 +64,9 @@ class action:
     def judge_cross_arms(self, landmarks): return pose.is_crossed_arms(landmarks)
     def is_cross_arms(self, landmarks): return self._cross.update(self.judge_cross_arms(landmarks))
     def judge_grab(self, hand): return hands.is_grab(hand)
-    def judge_kamehameha(self, first_hand, second_hand, shoulder_width): return hands.is_kamehameha(first_hand, second_hand, shoulder_width)
-    def is_kamehameha(self, first_hand, second_hand, shoulder_width): return self._kamehameha.update(self.judge_kamehameha(first_hand, second_hand, shoulder_width))
+    #かめはめ波poseのみ
+    def judge_kamehameha(self, landmarks):return hands.is_kamehameha(landmarks)
+    def is_kamehameha(self, landmarks):return self._kamehameha.update(self.judge_kamehameha(landmarks))
     def calc_angle(self, first, vertex, third): return geometry.angle(first, vertex, third)
     def distance(self, first, second): return geometry.distance(first, second)
 
