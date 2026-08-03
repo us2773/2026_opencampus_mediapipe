@@ -138,8 +138,8 @@ while cap.isOpened():
         if action.continue_sit(last_landmarks) :
             action.change_message("sit_continue")
             
-        if action.is_closs_arms(last_landmarks): 
-            action.change_message("closs_continue")
+        if action.is_cross_arms(last_landmarks): 
+            action.change_message("cross_continue")
             
         if action.is_tpose(last_landmarks) :
             action.change_message("tpose_continue")
