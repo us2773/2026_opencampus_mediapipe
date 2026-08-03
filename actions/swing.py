@@ -12,21 +12,21 @@ class SwingDetector:
 
     def detect(self, landmarks):
         shoulder_width = get_shoulder_width(landmarks)
-        th_displacement = 0.1
-        th_distance = 0.5 * shoulder_width
+        th_displacement = 0.3 * shoulder_width
+        th_distance = 1 * shoulder_width
         
-        left_pinky = landmarks[17]
-        right_pinky = landmarks[18]
+        left_wrist = landmarks[15]
+        right_wrist = landmarks[16]
         left_shoulder = landmarks[11]
         right_shoulder = landmarks[12]
         
-        if not check_visibility([left_pinky, right_pinky]) :
+        if not check_visibility([left_wrist, right_wrist]) :
             self.frames.clear()
             return False
         else :
             
-            if distance(left_pinky, right_pinky) <= th_distance :
-                self.frames.append((left_pinky.y + right_pinky.y) / 2)
+            if distance(left_wrist, right_wrist) <= th_distance :
+                self.frames.append((left_wrist.y + right_wrist.y) / 2)
                 self.shoulder_frames.append((left_shoulder.y + right_shoulder.y) / 2)
             else :
                 self.frames.clear()
