@@ -24,6 +24,7 @@ class action:
         self._continue_sit = HoldDetector(duration=1)
         self._message = dict.fromkeys(ACTION_NAMES, False)
         self._closs = HoldDetector(duration=1)
+        self._kick = False
 
     @property
     def jump_last_frames(self):
@@ -60,12 +61,29 @@ class action:
     def is_tpose(self, landmarks): return self._tpose.update(self.check_tpose(landmarks))
     def check_surprise(self, landmarks): return pose.is_surprise(landmarks)
     def is_surprise(self, landmarks): return self._surprise.update(self.check_surprise(landmarks))
-    def check_kick(self, landmarks): return pose.is_kick(landmarks)
+    #def check_kick(self, landmarks): return pose.is_kick(landmarks)
+    #kick変更
+    def check_kick(self, landmarks):
+        kick = pose.is_kick(landmarks)
+
+        if kick and not self._kick:
+            self._kick = True
+            return True
+
+        if not kick:
+            self._kick = False
+
+        return False
     def judge_closs_arms(self, landmarks): return pose.is_crossed_arms(landmarks)
     def is_closs_arms(self, landmarks): return self._closs.update(self.judge_closs_arms(landmarks))
     def judge_grab(self, hand): return hands.is_grab(hand)
+    #かめはめ波用追加
+    def judge_kamehameha(self, landmarks):return hands.is_kamehameha(landmarks)
+    def is_kamehameha(self, landmarks):return self._kamehameha.update(self.judge_kamehameha(landmarks))
+    """
     def judge_kamehameha(self, first_hand, second_hand, shoulder_width): return hands.is_kamehameha(first_hand, second_hand, shoulder_width)
     def is_kamehameha(self, first_hand, second_hand, shoulder_width): return self._kamehameha.update(self.judge_kamehameha(first_hand, second_hand, shoulder_width))
+    """
     def calc_angle(self, first, vertex, third): return geometry.angle(first, vertex, third)
     def distance(self, first, second): return geometry.distance(first, second)
 

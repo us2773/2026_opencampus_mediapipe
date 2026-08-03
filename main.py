@@ -133,7 +133,8 @@ while cap.isOpened():
             action.change_message("clap")
             
         if action.check_kick(last_landmarks):
-            action.change_message("Kick")
+            #action.change_message("Kick")
+            action.change_message("kick")
             
         if action.continue_sit(last_landmarks) :
             action.change_message("sit_continue")
@@ -146,6 +147,9 @@ while cap.isOpened():
             
         if action.is_surprise(last_landmarks):
             action.change_message("surprise_continue")
+        
+        if action.is_kamehameha(last_landmarks):
+            action.change_message("kamehameha_continue")
 
         shoulder_width = get_shoulder_width(last_landmarks)
 
@@ -180,8 +184,8 @@ while cap.isOpened():
                     if action.judge_grab(hand1) or action.judge_grab(hand2):
                         action.change_message("grab")
                     """
-                    if action.is_kamehameha(hand1, hand2, shoulder_width) :
-                        action.change_message("kamehameha_continue")
+                    #if action.is_kamehameha(hand1, hand2, shoulder_width) :
+                    #    action.change_message("kamehameha_continue")
 
     send_message(action.message)
     # print(action.message)
