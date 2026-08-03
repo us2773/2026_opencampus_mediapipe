@@ -1,7 +1,7 @@
 """手の動作判定。"""
 
 from .geometry import distance
-
+from .check_visibility import check_visibility
 
 def is_grab(hand_landmarks):
     wrist = hand_landmarks.landmark[0]
@@ -10,6 +10,9 @@ def is_grab(hand_landmarks):
 
 
 def is_kamehameha(first_hand, second_hand, shoulder_width):
+    landmarks = list(first_hand.landmark) +  list(second_hand.landmark)
+    if check_visibility(landmarks)  :
+        return False 
     th_hands_len = 0.1
     th_wrist_distance = 0.05
     th_wrist_xdiff = 0.1
