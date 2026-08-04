@@ -15,9 +15,9 @@ def is_kamehameha(landmarks):
     right_shoulder = landmarks[12]
     left_wrist = landmarks[15]
     right_wrist = landmarks[16]
-    ratio1 = 0.4 #肩幅の閾値変更用(両手首の距離)
-    ratio2 = 0.4 #肩幅での閾値変更用(左右の手首の高さ)
-    ratio3 = 0.5 #肩幅と手首のz座標の差の絶対値変更用
+    ratio1 = 0.6 #肩幅の閾値変更用(両手首の距離)
+    ratio2 = 0.6 #肩幅での閾値変更用(左右の手首の高さ)
+    ratio3 = 0.3 #肩幅と手首のz座標の差の絶対値変更用
 
     # 必要なランドマークが見えているか
     if not check_visibility([
