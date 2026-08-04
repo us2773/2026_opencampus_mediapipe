@@ -37,9 +37,9 @@ class JumpDetector:
                 
             is_jump_l = self.check_jump_waveform(self.frames_left, th)
             is_jump_r = self.check_jump_waveform(self.frames_right, th)
-            is_const_camera_distance = self.isconst_camera_distance(self.frames_z)
+            # is_const_camera_distance = self.isconst_camera_distance(self.frames_z)
             
-            result = is_jump_l and is_jump_r and is_const_camera_distance
+            result = is_jump_l and is_jump_r
             if  result:
                 self._last_detected_at = now
                 self.frames_left.clear()
@@ -56,7 +56,9 @@ class JumpDetector:
         right_foot = sum(frames[8:10]) / 2
         return (left_foot > left_side > top < right_side < right_foot and left_foot - top >= th)
     
+    """
     def isconst_camera_distance(self, frames) :
         frames = list(frames)
         variation = max(frames) - min(frames)
         return variation < 0.4
+        """
