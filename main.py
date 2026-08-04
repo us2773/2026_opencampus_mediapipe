@@ -133,7 +133,7 @@ while cap.isOpened():
             action.change_message("clap")
             
         if action.check_kick(last_landmarks):
-            action.change_message("Kick")
+            action.change_message("kick")
             
         if action.continue_sit(last_landmarks) :
             action.change_message("sit_continue")
