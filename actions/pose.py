@@ -23,10 +23,10 @@ def is_tpose(landmarks):
                                 left_hip, right_hip]) :
             return False
         else :
-            return (80 <= angle(left_elbow, left_shoulder, left_hip) <= 100 and
-                80 <= angle(right_elbow, right_shoulder, right_hip) <= 100 and
-                150 <= angle(left_shoulder, left_elbow, left_wrist) <= 180 and
-                150 <= angle(right_shoulder, right_elbow, right_wrist) <= 180)
+            return (70 <= angle(left_elbow, left_shoulder, left_hip) <= 110 and
+                70 <= angle(right_elbow, right_shoulder, right_hip) <= 110 and
+                140 <= angle(left_shoulder, left_elbow, left_wrist) <= 180 and
+                140 <= angle(right_shoulder, right_elbow, right_wrist) <= 180)
 
 
 def is_surprise(landmarks):

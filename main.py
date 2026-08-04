@@ -37,7 +37,7 @@ hands = mp_hands.Hands(
 # Webカメラを起動
 # 0はPC内蔵カメラを表す
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 all_landmarks = []
 header = []
 
